@@ -1,0 +1,17 @@
+{
+  "name": "pyrimid-agent-commerce-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A static buyer-agent demo that integrates the Pyrimid SDK resolver for x402 product discovery.",
+  "scripts": {
+    "check": "node scripts/check.mjs"
+  },
+  "keywords": [
+    "pyrimid",
+    "x402",
+    "agent-commerce",
+    "affiliate",
+    "base-usdc"
+  ]
+}

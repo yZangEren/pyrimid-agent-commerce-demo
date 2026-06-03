@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Codex Commerce Scout integrates Pyrimid SDK product discovery for buyer agents.">
+    <title>Codex Commerce Scout - Pyrimid Agent Demo</title>
+    <link rel="stylesheet" href="src/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Pyrimid SDK integration demo</p>
+            <h1 id="app-title">Codex Commerce Scout</h1>
+          </div>
+          <div class="status-strip" aria-label="Integration status">
+            <span class="status-pill good">SDK resolver</span>
+            <span class="status-pill">x402 preview</span>
+            <span class="status-pill">Base USDC</span>
+          </div>
+        </header>
+
+        <section class="tool-grid" aria-label="Buyer agent tool">
+          <form class="search-panel" id="scout-form">
+            <label for="need">Buyer need</label>
+            <div class="input-row">
+              <input id="need" name="need" type="search" value="mcp monetization audit" autocomplete="off">
+              <button type="submit">Find</button>
+            </div>
+            <div class="controls">
+              <label>
+                <span>Max price</span>
+                <select id="max-price" name="max-price">
+                  <option value="500000">$0.50</option>
+                  <option value="250000" selected>$0.25</option>
+                  <option value="100000">$0.10</option>
+                  <option value="50000">$0.05</option>
+                </select>
+              </label>
+              <label>
+                <span>Results</span>
+                <select id="limit" name="limit">
+                  <option value="3">3</option>
+                  <option value="5" selected>5</option>
+                  <option value="8">8</option>
+                </select>
+              </label>
+              <label class="checkbox">
+                <input id="verified" name="verified" type="checkbox" checked>
+                <span>Prefer verified vendors</span>
+              </label>
+            </div>
+          </form>
+
+          <aside class="summary-panel" aria-label="Agent summary">
+            <dl>
+              <div>
+                <dt>Affiliate ID</dt>
+                <dd id="affiliate-id">af_codex_commerce_scout</dd>
+              </div>
+              <div>
+                <dt>Catalog source</dt>
+                <dd id="catalog-source">loading</dd>
+              </div>
+              <div>
+                <dt>Products scanned</dt>
+                <dd id="products-scanned">0</dd>
+              </div>
+            </dl>
+          </aside>
+        </section>
+
+        <section class="result-layout" aria-label="Recommended products">
+          <div class="results-header">
+            <h2>Recommendations</h2>
+            <p id="run-status">Loading live catalog, with local snapshot fallback.</p>
+          </div>
+          <div id="results" class="results" aria-live="polite"></div>
+        </section>
+
+        <section class="receipt-panel" aria-label="Payment preview">
+          <h2>x402 purchase preview</h2>
+          <pre id="receipt-output">Select a product to preview routePayment economics.</pre>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
