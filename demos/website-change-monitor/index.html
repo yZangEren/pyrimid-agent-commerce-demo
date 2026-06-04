@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Website change monitor demo with diff scoring and alert handoff.">
+    <title>Website Change Monitor Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202a;
+        --muted: #647184;
+        --line: #d9e0ea;
+        --panel: #ffffff;
+        --band: #f2f6fa;
+        --accent: #0f7b6c;
+        --accent-dark: #0a5d52;
+        --blue: #225caa;
+        --red: #b7312c;
+        --amber: #9b6500;
+        --green: #16724f;
+        --shadow: 0 18px 42px rgba(25, 38, 54, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(242, 246, 250, 0.96), rgba(250, 252, 253, 0.98)),
+          repeating-linear-gradient(90deg, rgba(34, 92, 170, 0.06) 0 1px, transparent 1px 84px);
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1220px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 28px 0;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+      }
+
+      .topbar,
+      .scan-grid,
+      .alert-panel,
+      .output-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 22px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.45rem, 2.6vw, 2.2rem);
+        line-height: 1.06;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 1rem;
+        line-height: 1.25;
+      }
+
+      h3 {
+        font-size: 0.93rem;
+        line-height: 1.25;
+      }
+
+      .eyebrow {
+        margin-bottom: 5px;
+        color: var(--accent-dark);
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      button {
+        min-height: 40px;
+        border: 0;
+        border-radius: 6px;
+        padding: 0 13px;
+        color: white;
+        background: var(--accent);
+        font-weight: 760;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--accent-dark);
+      }
+
+      button.secondary {
+        border: 1px solid #c6d0dd;
+        color: var(--blue);
+        background: #fff;
+      }
+
+      button.secondary:hover {
+        color: #143b70;
+        background: #f4f7fb;
+      }
+
+      .scan-grid {
+        display: grid;
+        grid-template-columns: 340px minmax(0, 1fr);
+        min-height: 620px;
+      }
+
+      .queue-panel {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 14px;
+        border-right: 1px solid var(--line);
+        padding: 16px;
+        background: var(--band);
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 110px;
+        gap: 8px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 40px;
+        border: 1px solid #c6d0dd;
+        border-radius: 6px;
+        padding: 0 11px;
+        color: var(--ink);
+        background: white;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        outline: 3px solid rgba(15, 123, 108, 0.17);
+      }
+
+      .site-list {
+        display: grid;
+        align-content: start;
+        gap: 8px;
+        overflow: auto;
+      }
+
+      .site-button {
+        display: grid;
+        gap: 7px;
+        width: 100%;
+        min-height: 76px;
+        border: 1px solid #d1d9e4;
+        border-radius: 8px;
+        padding: 11px;
+        color: var(--ink);
+        background: #fff;
+        text-align: left;
+        box-shadow: none;
+      }
+
+      .site-button:hover,
+      .site-button.active {
+        border-color: rgba(15, 123, 108, 0.52);
+        background: rgba(15, 123, 108, 0.07);
+      }
+
+      .site-button strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.9rem;
+      }
+
+      .site-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 23px;
+        border-radius: 999px;
+        padding: 0 8px;
+        color: #2d3c4e;
+        background: #e7edf5;
+        font-size: 0.73rem;
+        font-weight: 760;
+      }
+
+      .pill.high {
+        color: var(--red);
+        background: rgba(183, 49, 44, 0.11);
+      }
+
+      .pill.medium {
+        color: var(--amber);
+        background: rgba(155, 101, 0, 0.12);
+      }
+
+      .pill.low {
+        color: var(--green);
+        background: rgba(22, 114, 79, 0.12);
+      }
+
+      .detail-panel {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        gap: 14px;
+        padding: 16px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric {
+        display: grid;
+        gap: 6px;
+        min-height: 86px;
+        border: 1px solid #dfe5ed;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fbfcfe;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        font-size: 1.28rem;
+        line-height: 1;
+      }
+
+      .diff-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 12px;
+        min-height: 410px;
+      }
+
+      .snapshot,
+      .change-log {
+        border: 1px solid #dfe5ed;
+        border-radius: 8px;
+        background: #fbfcfe;
+        overflow: hidden;
+      }
+
+      .snapshot-header,
+      .log-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 1px solid #dfe5ed;
+        padding: 11px 12px;
+        background: white;
+      }
+
+      .snapshot-body {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+      }
+
+      .page-line {
+        display: grid;
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+      }
+
+      .page-line span {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .page-line p {
+        color: #2a3747;
+        font-size: 0.9rem;
+        line-height: 1.42;
+      }
+
+      .changed {
+        border-color: rgba(155, 101, 0, 0.35);
+        background: rgba(155, 101, 0, 0.07);
+      }
+
+      .removed {
+        border-color: rgba(183, 49, 44, 0.31);
+        background: rgba(183, 49, 44, 0.06);
+      }
+
+      .added {
+        border-color: rgba(22, 114, 79, 0.32);
+        background: rgba(22, 114, 79, 0.07);
+      }
+
+      .change-items {
+        display: grid;
+        gap: 9px;
+        max-height: 354px;
+        overflow: auto;
+        padding: 12px;
+      }
+
+      .change-item {
+        display: grid;
+        gap: 7px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+      }
+
+      .change-item p {
+        color: #314052;
+        font-size: 0.86rem;
+        line-height: 1.42;
+      }
+
+      .alert-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 14px;
+        padding: 16px;
+      }
+
+      textarea {
+        min-height: 158px;
+        padding: 12px;
+        resize: vertical;
+        line-height: 1.45;
+      }
+
+      .routing {
+        display: grid;
+        gap: 10px;
+      }
+
+      .output-panel {
+        padding: 16px;
+      }
+
+      pre {
+        min-height: 180px;
+        margin: 12px 0 0;
+        overflow: auto;
+        border: 1px solid #dfe5ed;
+        border-radius: 8px;
+        padding: 13px;
+        color: #17202a;
+        background: #f7f9fc;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 980px) {
+        .scan-grid,
+        .diff-layout,
+        .alert-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .queue-panel {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .metric-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: min(100vw - 20px, 1220px);
+          padding: 10px 0;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .toolbar,
+        .field-row,
+        .metric-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          width: 100%;
+        }
+
+        .page-line {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Monitoring delivery slice</p>
+            <h1 id="app-title">Website Change Monitor</h1>
+          </div>
+          <div class="toolbar">
+            <button class="secondary" id="export-json" type="button">Export JSON</button>
+            <button id="run-scan" type="button">Run Scan</button>
+          </div>
+        </header>
+
+        <section class="scan-grid" aria-label="Website monitor workspace">
+          <aside class="queue-panel">
+            <div>
+              <p class="eyebrow">Watch queue</p>
+              <h2>Tracked pages</h2>
+            </div>
+            <div class="field-row">
+              <input id="new-url" type="url" value="https://example.com/pricing" aria-label="URL">
+              <button id="add-url" type="button">Add URL</button>
+            </div>
+            <div id="site-list" class="site-list" aria-live="polite"></div>
+          </aside>
+
+          <section class="detail-panel" aria-label="Selected page diff">
+            <div>
+              <p class="eyebrow" id="selected-url">https://example.com/pricing</p>
+              <h2 id="selected-title">Pricing page</h2>
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric">
+                <span>Risk</span>
+                <strong id="metric-risk">High</strong>
+                <p id="metric-risk-note" class="pill high">payment copy changed</p>
+              </div>
+              <div class="metric">
+                <span>Changed blocks</span>
+                <strong id="metric-blocks">4</strong>
+                <p class="pill medium" id="metric-score">score 83</p>
+              </div>
+              <div class="metric">
+                <span>Last scan</span>
+                <strong id="metric-scan">10:42</strong>
+                <p class="pill low">200 OK</p>
+              </div>
+              <div class="metric">
+                <span>Alert route</span>
+                <strong id="metric-route">Email</strong>
+                <p class="pill">owner + ops</p>
+              </div>
+            </div>
+
+            <div class="diff-layout">
+              <section class="snapshot" aria-label="Page snapshot">
+                <div class="snapshot-header">
+                  <h3 id="snapshot-heading">Snapshot diff</h3>
+                  <span class="pill" id="snapshot-version">v2 vs v1</span>
+                </div>
+                <div id="snapshot-body" class="snapshot-body"></div>
+              </section>
+
+              <aside class="change-log" aria-label="Change log">
+                <div class="log-header">
+                  <h3>Change log</h3>
+                  <span class="pill" id="change-count">4 items</span>
+                </div>
+                <div id="change-items" class="change-items"></div>
+              </aside>
+            </div>
+          </section>
+        </section>
+
+        <section class="alert-panel" aria-label="Alert packet">
+          <div>
+            <p class="eyebrow">Alert draft</p>
+            <textarea id="alert-draft" aria-label="Alert draft"></textarea>
+          </div>
+          <div class="routing">
+            <label>
+              <span class="eyebrow">Channel</span>
+              <select id="channel">
+                <option>Email</option>
+                <option>Slack webhook</option>
+                <option>Discord webhook</option>
+                <option>Telegram bot</option>
+                <option>ntfy topic</option>
+              </select>
+            </label>
+            <label>
+              <span class="eyebrow">Severity floor</span>
+              <select id="severity-floor">
+                <option>High only</option>
+                <option selected>Medium and high</option>
+                <option>All changes</option>
+              </select>
+            </label>
+            <button id="compose-alert" type="button">Compose Alert</button>
+          </div>
+        </section>
+
+        <section class="output-panel" aria-label="Handoff JSON">
+          <p class="eyebrow">Handoff packet</p>
+          <h2>Run output</h2>
+          <pre id="json-output"></pre>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const pages = [
+        {
+          title: "Pricing page",
+          url: "https://example.com/pricing",
+          risk: "High",
+          score: 83,
+          lastScan: "10:42",
+          route: "Email",
+          changes: [
+            { type: "changed", block: "Hero offer", detail: "Annual plan moved from 20% off to 10% off.", severity: "High" },
+            { type: "changed", block: "Checkout copy", detail: "Refund window changed from 30 days to 14 days.", severity: "High" },
+            { type: "removed", block: "Enterprise CTA", detail: "Contact-sales CTA disappeared from first viewport.", severity: "Medium" },
+            { type: "added", block: "Plan limit", detail: "New 50-seat cap added to Business tier.", severity: "Medium" }
+          ],
+          snapshot: [
+            { label: "Title", value: "Simple pricing for teams", state: "same" },
+            { label: "Offer", value: "Annual plan now shows 10% off. Previous snapshot showed 20% off.", state: "changed" },
+            { label: "Refunds", value: "Refund window now reads 14 days. Previous snapshot read 30 days.", state: "changed" },
+            { label: "CTA", value: "Enterprise contact CTA missing above the fold.", state: "removed" },
+            { label: "Limits", value: "Business tier now includes a 50-seat cap.", state: "added" }
+          ]
+        },
+        {
+          title: "Docs install page",
+          url: "https://example.com/docs/install",
+          risk: "Medium",
+          score: 56,
+          lastScan: "10:37",
+          route: "Slack",
+          changes: [
+            { type: "changed", block: "Install command", detail: "Package tag changed from latest to beta.", severity: "Medium" },
+            { type: "added", block: "Node support", detail: "Node 22 runtime note added.", severity: "Low" }
+          ],
+          snapshot: [
+            { label: "Command", value: "npm install example-sdk@beta replaced npm install example-sdk.", state: "changed" },
+            { label: "Runtime", value: "Node 22 note added to environment matrix.", state: "added" },
+            { label: "Auth", value: "API-key section unchanged.", state: "same" }
+          ]
+        },
+        {
+          title: "Status page",
+          url: "https://status.example.com",
+          risk: "Low",
+          score: 18,
+          lastScan: "10:31",
+          route: "ntfy",
+          changes: [
+            { type: "added", block: "Incident note", detail: "Resolved maintenance note added to history.", severity: "Low" }
+          ],
+          snapshot: [
+            { label: "Summary", value: "All systems operational.", state: "same" },
+            { label: "History", value: "Resolved maintenance note added.", state: "added" }
+          ]
+        }
+      ];
+
+      const state = {
+        selected: 0,
+        runId: "monitor-run-20260604-1042"
+      };
+
+      const siteList = document.querySelector("#site-list");
+      const selectedUrl = document.querySelector("#selected-url");
+      const selectedTitle = document.querySelector("#selected-title");
+      const metricRisk = document.querySelector("#metric-risk");
+      const metricRiskNote = document.querySelector("#metric-risk-note");
+      const metricBlocks = document.querySelector("#metric-blocks");
+      const metricScore = document.querySelector("#metric-score");
+      const metricScan = document.querySelector("#metric-scan");
+      const metricRoute = document.querySelector("#metric-route");
+      const snapshotBody = document.querySelector("#snapshot-body");
+      const changeItems = document.querySelector("#change-items");
+      const changeCount = document.querySelector("#change-count");
+      const alertDraft = document.querySelector("#alert-draft");
+      const jsonOutput = document.querySelector("#json-output");
+
+      function riskClass(risk) {
+        return risk.toLowerCase() === "high" ? "high" : risk.toLowerCase() === "medium" ? "medium" : "low";
+      }
+
+      function renderList() {
+        siteList.innerHTML = "";
+        pages.forEach((page, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `site-button${index === state.selected ? " active" : ""}`;
+          button.innerHTML = `
+            <strong>${page.title}</strong>
+            <span>${page.url}</span>
+            <span class="site-meta">
+              <span class="pill ${riskClass(page.risk)}">${page.risk}</span>
+              <span class="pill">${page.changes.length} changes</span>
+            </span>
+          `;
+          button.addEventListener("click", () => {
+            state.selected = index;
+            render();
+          });
+          siteList.append(button);
+        });
+      }
+
+      function composeAlert(page) {
+        const headline = `[${page.risk}] ${page.title} changed`;
+        const important = page.changes
+          .filter((item) => item.severity !== "Low")
+          .map((item) => `- ${item.block}: ${item.detail}`)
+          .join("\n");
+        return `${headline}
+URL: ${page.url}
+Run: ${state.runId}
+Changed blocks: ${page.changes.length}
+Score: ${page.score}
+
+${important || "- Low-risk content update only."}
+
+Recommended action: review the changed blocks before the next campaign, release note, or customer-facing promise goes live.`;
+      }
+
+      function handoff(page) {
+        return {
+          run_id: state.runId,
+          selected_url: page.url,
+          risk: page.risk,
+          score: page.score,
+          last_scan_local: page.lastScan,
+          alert_channel: document.querySelector("#channel").value,
+          severity_floor: document.querySelector("#severity-floor").value,
+          changed_blocks: page.changes,
+          snapshot: page.snapshot,
+          next_engineering_step: "Wire the scanner to Playwright or fetch snapshots, persist baselines, and send the alert draft through the selected webhook."
+        };
+      }
+
+      function renderDetail() {
+        const page = pages[state.selected];
+        selectedUrl.textContent = page.url;
+        selectedTitle.textContent = page.title;
+        metricRisk.textContent = page.risk;
+        metricRiskNote.className = `pill ${riskClass(page.risk)}`;
+        metricRiskNote.textContent = page.risk === "High" ? "customer-facing promise" : page.risk === "Medium" ? "review before release" : "archive only";
+        metricBlocks.textContent = page.changes.length;
+        metricScore.textContent = `score ${page.score}`;
+        metricScan.textContent = page.lastScan;
+        metricRoute.textContent = page.route;
+        changeCount.textContent = `${page.changes.length} items`;
+
+        snapshotBody.innerHTML = "";
+        page.snapshot.forEach((line) => {
+          const item = document.createElement("div");
+          item.className = `page-line ${line.state === "same" ? "" : line.state}`;
+          item.innerHTML = `<span>${line.label}</span><p>${line.value}</p>`;
+          snapshotBody.append(item);
+        });
+
+        changeItems.innerHTML = "";
+        page.changes.forEach((change) => {
+          const item = document.createElement("article");
+          item.className = "change-item";
+          item.innerHTML = `
+            <span class="pill ${riskClass(change.severity)}">${change.severity}</span>
+            <h3>${change.block}</h3>
+            <p>${change.detail}</p>
+          `;
+          changeItems.append(item);
+        });
+
+        alertDraft.value = composeAlert(page);
+        jsonOutput.textContent = JSON.stringify(handoff(page), null, 2);
+      }
+
+      function render() {
+        renderList();
+        renderDetail();
+      }
+
+      document.querySelector("#run-scan").addEventListener("click", () => {
+        const now = new Date();
+        state.runId = `monitor-run-${now.toISOString().slice(0, 19).replace(/[-:T]/g, "")}`;
+        pages.forEach((page) => {
+          page.lastScan = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        });
+        renderDetail();
+      });
+
+      document.querySelector("#add-url").addEventListener("click", () => {
+        const input = document.querySelector("#new-url");
+        const value = input.value.trim();
+        if (!value) return;
+        pages.unshift({
+          title: value.replace(/^https?:\/\//, "").split("/")[0],
+          url: value,
+          risk: "Low",
+          score: 12,
+          lastScan: "queued",
+          route: "Email",
+          changes: [{ type: "added", block: "Baseline", detail: "Initial baseline captured for monitoring.", severity: "Low" }],
+          snapshot: [{ label: "Baseline", value: "Initial snapshot queued.", state: "added" }]
+        });
+        state.selected = 0;
+        render();
+      });
+
+      document.querySelector("#compose-alert").addEventListener("click", () => {
+        renderDetail();
+        alertDraft.focus();
+      });
+
+      document.querySelector("#export-json").addEventListener("click", () => {
+        renderDetail();
+        jsonOutput.focus();
+      });
+
+      document.querySelector("#channel").addEventListener("change", renderDetail);
+      document.querySelector("#severity-floor").addEventListener("change", renderDetail);
+
+      render();
+    </script>
+  </body>
+</html>
