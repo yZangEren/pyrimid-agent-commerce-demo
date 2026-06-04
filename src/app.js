@@ -1,4 +1,4 @@
-const AFFILIATE_ID = "af_codex_commerce_scout";
+const AFFILIATE_ID = "af_commerce_scout_demo";
 const LIVE_CATALOG_URL = "https://pyrimid.ai/api/v1/catalog";
 const SNAPSHOT_URL = "./catalog-snapshot.json";
 
