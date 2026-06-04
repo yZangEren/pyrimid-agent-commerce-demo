@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Internal blog and social content generator demo with tone controls, editable drafts, review states, and export handoff.">
+    <title>Content Generator Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172033;
+        --muted: #667085;
+        --line: #d4dce8;
+        --panel: #ffffff;
+        --band: #f4f7fb;
+        --teal: #087066;
+        --teal-dark: #07564f;
+        --blue: #245da8;
+        --violet: #5e52b8;
+        --amber: #9a6200;
+        --red: #b2362f;
+        --green: #13734d;
+        --shadow: 0 18px 42px rgba(31, 45, 61, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(244, 247, 251, 0.98), rgba(250, 252, 254, 0.98)),
+          linear-gradient(90deg, rgba(8, 112, 102, 0.05), rgba(94, 82, 184, 0.05));
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        min-height: 40px;
+        border: 0;
+        border-radius: 6px;
+        padding: 0 13px;
+        color: white;
+        background: var(--teal);
+        font-weight: 780;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--teal-dark);
+      }
+
+      button.secondary {
+        border: 1px solid #c5cfdd;
+        color: var(--blue);
+        background: white;
+      }
+
+      button.secondary:hover {
+        color: #143b70;
+        background: #f4f7fb;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 40px;
+        border: 1px solid #c5cfdd;
+        border-radius: 6px;
+        padding: 0 11px;
+        color: var(--ink);
+        background: white;
+      }
+
+      textarea {
+        min-height: 108px;
+        padding: 10px 11px;
+        line-height: 1.45;
+        resize: vertical;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.5rem, 2.8vw, 2.32rem);
+        line-height: 1.06;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 1rem;
+        line-height: 1.25;
+      }
+
+      h3 {
+        font-size: 0.94rem;
+        line-height: 1.25;
+      }
+
+      .shell {
+        width: min(1280px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 28px 0;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+      }
+
+      .topbar,
+      .main-grid,
+      .output-panel,
+      .metrics-row {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 20px 22px;
+      }
+
+      .eyebrow {
+        margin-bottom: 5px;
+        color: var(--teal-dark);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .status-strip,
+      .toolbar,
+      .chips,
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .status-pill,
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 27px;
+        border-radius: 999px;
+        padding: 0 10px;
+        color: #344054;
+        background: #e8eef6;
+        font-size: 0.76rem;
+        font-weight: 760;
+      }
+
+      .status-pill.good,
+      .chip.good {
+        color: var(--green);
+        background: rgba(19, 115, 77, 0.12);
+      }
+
+      .status-pill.warn,
+      .chip.warn {
+        color: var(--amber);
+        background: rgba(154, 98, 0, 0.13);
+      }
+
+      .chip.edit {
+        color: var(--violet);
+        background: rgba(94, 82, 184, 0.12);
+      }
+
+      .metrics-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        overflow: hidden;
+      }
+
+      .metric {
+        display: grid;
+        gap: 5px;
+        min-height: 92px;
+        padding: 16px;
+        border-right: 1px solid var(--line);
+      }
+
+      .metric:last-child {
+        border-right: 0;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        font-size: 1.5rem;
+        line-height: 1;
+      }
+
+      .metric small {
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 350px minmax(0, 1fr) 350px;
+        min-height: 720px;
+        overflow: hidden;
+      }
+
+      .brief-panel,
+      .draft-panel,
+      .review-panel {
+        display: grid;
+        align-content: start;
+        gap: 14px;
+        padding: 16px;
+      }
+
+      .brief-panel {
+        border-right: 1px solid var(--line);
+        background: var(--band);
+      }
+
+      .review-panel {
+        border-left: 1px solid var(--line);
+        background: #fbfcfe;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .field-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .inline-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .draft-panel {
+        gap: 0;
+        padding: 0;
+      }
+
+      .draft-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tab {
+        min-height: 34px;
+        border: 1px solid #c5cfdd;
+        border-radius: 999px;
+        padding: 0 12px;
+        color: var(--blue);
+        background: white;
+      }
+
+      .tab.active {
+        border-color: var(--teal);
+        color: white;
+        background: var(--teal);
+      }
+
+      .draft-body {
+        display: grid;
+        gap: 14px;
+        max-height: 655px;
+        overflow: auto;
+        padding: 16px;
+      }
+
+      .draft-card,
+      .review-card {
+        display: grid;
+        gap: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 13px;
+        background: white;
+      }
+
+      .draft-text {
+        min-height: 210px;
+        color: #263548;
+        line-height: 1.5;
+      }
+
+      .caption-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .caption {
+        display: grid;
+        gap: 8px;
+        border: 1px solid #dde5ef;
+        border-radius: 8px;
+        padding: 11px;
+        background: #fbfcfe;
+      }
+
+      .caption textarea {
+        min-height: 96px;
+      }
+
+      .review-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .review-list li {
+        border-left: 3px solid var(--blue);
+        padding: 8px 10px;
+        border-radius: 0 6px 6px 0;
+        color: #344054;
+        background: #f5f8fc;
+        font-size: 0.88rem;
+        line-height: 1.35;
+      }
+
+      .review-list li.warn {
+        border-color: var(--amber);
+        background: rgba(154, 98, 0, 0.09);
+      }
+
+      .output-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        overflow: hidden;
+      }
+
+      .output-block {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .output-block:first-child {
+        border-right: 1px solid var(--line);
+      }
+
+      pre {
+        overflow: auto;
+        max-height: 380px;
+        margin: 0;
+        border: 1px solid #dce3ed;
+        border-radius: 8px;
+        padding: 12px;
+        color: #102033;
+        background: #f7fafc;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 1100px) {
+        .main-grid,
+        .output-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .brief-panel,
+        .review-panel,
+        .output-block:first-child {
+          border-right: 0;
+        }
+
+        .review-panel {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+        }
+
+        .metrics-row {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .metric:nth-child(2) {
+          border-right: 0;
+        }
+
+        .metric:nth-child(1),
+        .metric:nth-child(2) {
+          border-bottom: 1px solid var(--line);
+        }
+      }
+
+      @media (max-width: 700px) {
+        .shell {
+          width: min(100vw - 20px, 1280px);
+          padding: 10px 0;
+        }
+
+        .topbar,
+        .draft-header {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .metrics-row,
+        .inline-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .metric {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .metric:last-child {
+          border-bottom: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Internal marketing workflow demo</p>
+            <h1 id="app-title">Content Generator</h1>
+          </div>
+          <div class="status-strip" aria-label="Workflow status">
+            <span class="status-pill good">tone controls</span>
+            <span class="status-pill">editable drafts</span>
+            <span class="status-pill warn">export handoff</span>
+          </div>
+        </header>
+
+        <section class="metrics-row" aria-label="Draft metrics">
+          <div class="metric">
+            <span>Assets</span>
+            <strong id="metric-assets">0</strong>
+            <small>Blog plus social captions.</small>
+          </div>
+          <div class="metric">
+            <span>Read time</span>
+            <strong id="metric-read-time">0m</strong>
+            <small>Estimated blog reading time.</small>
+          </div>
+          <div class="metric">
+            <span>Fact checks</span>
+            <strong id="metric-facts">0</strong>
+            <small>Claims held for review.</small>
+          </div>
+          <div class="metric">
+            <span>Status</span>
+            <strong id="metric-status">Draft</strong>
+            <small>Current approval state.</small>
+          </div>
+        </section>
+
+        <section class="main-grid" aria-label="Content generator workspace">
+          <aside class="brief-panel" aria-label="Campaign brief">
+            <div>
+              <p class="eyebrow">Brief</p>
+              <h2>Campaign inputs</h2>
+            </div>
+            <div class="field-grid">
+              <label for="product">
+                Product or offer
+                <input id="product" value="Lead quality filter for noisy website forms">
+              </label>
+              <label for="audience">
+                Audience
+                <input id="audience" value="B2B SaaS founders and sales ops teams">
+              </label>
+              <label for="tone">
+                Tone
+                <select id="tone">
+                  <option value="practical" selected>Practical</option>
+                  <option value="executive">Executive</option>
+                  <option value="friendly">Friendly</option>
+                  <option value="technical">Technical</option>
+                </select>
+              </label>
+              <div class="inline-grid">
+                <label for="blog-length">
+                  Blog length
+                  <select id="blog-length">
+                    <option value="short">Short</option>
+                    <option value="standard" selected>Standard</option>
+                    <option value="deep">Deep</option>
+                  </select>
+                </label>
+                <label for="cta">
+                  CTA
+                  <select id="cta">
+                    <option value="demo" selected>Book a demo</option>
+                    <option value="trial">Start trial</option>
+                    <option value="audit">Request audit</option>
+                  </select>
+                </label>
+              </div>
+              <label for="facts">
+                Fact bank
+                <textarea id="facts">Flags spam, bot traffic, vendor pitches, and low-intent leads.
+Routes submissions to allow, review, or block queues.
+Exports JSON for CRM, email, or automation workflows.</textarea>
+              </label>
+              <label for="constraints">
+                Constraints
+                <textarea id="constraints">Avoid unverifiable performance claims.
+Keep copy specific and useful.
+Mark integration details for review before publishing.</textarea>
+              </label>
+              <div class="button-row">
+                <button id="generate" type="button">Generate</button>
+                <button id="reset" class="secondary" type="button">Reset</button>
+              </div>
+            </div>
+          </aside>
+
+          <section class="draft-panel" aria-label="Generated drafts">
+            <div class="draft-header">
+              <div>
+                <p class="eyebrow">Drafts</p>
+                <h2>Editable content packet</h2>
+              </div>
+              <div class="tabs">
+                <button class="tab active" data-view="blog" type="button">Blog</button>
+                <button class="tab" data-view="social" type="button">Social</button>
+                <button class="tab" data-view="email" type="button">Email</button>
+              </div>
+            </div>
+            <div class="draft-body" id="draft-body"></div>
+          </section>
+
+          <aside class="review-panel" aria-label="Review state">
+            <div>
+              <p class="eyebrow">Review</p>
+              <h2>Approval controls</h2>
+            </div>
+            <div class="review-card">
+              <label for="review-state">
+                State
+                <select id="review-state">
+                  <option value="draft" selected>Draft</option>
+                  <option value="needs_fact_check">Needs fact check</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </label>
+              <label for="reviewer-note">
+                Reviewer note
+                <textarea id="reviewer-note">Synthetic copy only. Replace product facts and integration details with buyer-approved inputs before publishing.</textarea>
+              </label>
+            </div>
+            <div class="review-card">
+              <h2>Checks</h2>
+              <ul class="review-list" id="review-list"></ul>
+            </div>
+          </aside>
+        </section>
+
+        <section class="output-panel" aria-label="Exports">
+          <div class="output-block">
+            <div>
+              <p class="eyebrow">JSON</p>
+              <h2>Workflow handoff</h2>
+            </div>
+            <pre id="json-output">Generate a packet to create export JSON.</pre>
+          </div>
+          <div class="output-block">
+            <div>
+              <p class="eyebrow">Markdown</p>
+              <h2>Editorial export</h2>
+            </div>
+            <pre id="markdown-output">Generate a packet to create markdown export.</pre>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        view: "blog",
+        packet: null
+      };
+
+      const els = {
+        product: document.querySelector("#product"),
+        audience: document.querySelector("#audience"),
+        tone: document.querySelector("#tone"),
+        blogLength: document.querySelector("#blog-length"),
+        cta: document.querySelector("#cta"),
+        facts: document.querySelector("#facts"),
+        constraints: document.querySelector("#constraints"),
+        draftBody: document.querySelector("#draft-body"),
+        reviewState: document.querySelector("#review-state"),
+        reviewerNote: document.querySelector("#reviewer-note"),
+        reviewList: document.querySelector("#review-list"),
+        jsonOutput: document.querySelector("#json-output"),
+        markdownOutput: document.querySelector("#markdown-output"),
+        assets: document.querySelector("#metric-assets"),
+        readTime: document.querySelector("#metric-read-time"),
+        factsMetric: document.querySelector("#metric-facts"),
+        status: document.querySelector("#metric-status")
+      };
+
+      const toneMap = {
+        practical: {
+          opener: "The useful version of this workflow is not more content. It is better triage.",
+          verb: "shows",
+          style: "plainspoken and operational"
+        },
+        executive: {
+          opener: "Every noisy form submission creates a hidden sales cost.",
+          verb: "turns",
+          style: "concise and board-ready"
+        },
+        friendly: {
+          opener: "A busy inbox should not make good leads harder to spot.",
+          verb: "helps",
+          style: "warm and approachable"
+        },
+        technical: {
+          opener: "A lead-quality layer can be modeled as deterministic routing plus reviewable scoring evidence.",
+          verb: "maps",
+          style: "specific and implementation-minded"
+        }
+      };
+
+      function lines(value) {
+        return value
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter(Boolean);
+      }
+
+      function ctaText(value) {
+        return value === "trial"
+          ? "Start with a small trial"
+          : value === "audit"
+            ? "Request a form-quality audit"
+            : "Book a demo";
+      }
+
+      function makePacket() {
+        const product = els.product.value.trim() || "Internal content workflow";
+        const audience = els.audience.value.trim() || "operators";
+        const facts = lines(els.facts.value);
+        const constraints = lines(els.constraints.value);
+        const tone = toneMap[els.tone.value] || toneMap.practical;
+        const length = els.blogLength.value;
+        const sectionCount = length === "deep" ? 5 : length === "short" ? 3 : 4;
+        const title = `${product}: a cleaner workflow for ${audience}`;
+        const sections = [
+          "Why the current workflow leaks attention",
+          "What the first useful version should do",
+          "How review and export should work",
+          "What to measure after launch",
+          "Where to connect it next"
+        ].slice(0, sectionCount);
+
+        const blog = `${tone.opener}
+
+For ${audience}, ${product.toLowerCase()} ${tone.verb} the difference between raw activity and work that deserves follow-up.
+
+${sections
+  .map((heading, index) => {
+    const fact = facts[index % facts.length] || "Keep the workflow measurable and reviewable.";
+    return `## ${heading}
+${fact} The first version should stay small enough to inspect, edit, and export before it touches a production channel.`;
+  })
+  .join("\n\n")}
+
+## First milestone
+Start with a reviewable internal tool: brief inputs, generated draft, editor state, review notes, and structured export.
+
+${ctaText(els.cta.value)}.`;
+
+        const captions = [
+          {
+            channel: "LinkedIn",
+            text: `${product} is useful when it turns noisy input into a reviewable queue. For ${audience}, the first milestone should be simple: tone controls, editable drafts, reviewer notes, and exportable JSON.`
+          },
+          {
+            channel: "X",
+            text: `${product}: generate less generic content, more reviewable drafts. Inputs -> tone -> editable blog/captions -> approval state -> JSON export.`
+          },
+          {
+            channel: "Internal note",
+            text: `Recommended first scope: build the draft generator with synthetic inputs, then connect real brand facts after the review contract is approved.`
+          }
+        ];
+
+        const email = `Subject: Reviewable first slice for ${product}
+
+Hi,
+
+I put together a first content workflow shape for ${audience}. The useful milestone is a small internal tool with tone selection, editable blog and social drafts, reviewer state, and exportable handoff data.
+
+The first version can use synthetic product facts until your team approves the content constraints.
+
+${ctaText(els.cta.value)} when you want to turn this into a live workflow.`;
+
+        return {
+          generated_at: new Date().toISOString(),
+          title,
+          product,
+          audience,
+          tone: els.tone.value,
+          style: tone.style,
+          review_state: els.reviewState.value,
+          reviewer_note: els.reviewerNote.value,
+          facts,
+          constraints,
+          assets: { blog, captions, email },
+          checks: buildChecks(blog, captions, facts, constraints)
+        };
+      }
+
+      function buildChecks(blog, captions, facts, constraints) {
+        const joined = `${blog} ${captions.map((caption) => caption.text).join(" ")}`.toLowerCase();
+        return [
+          {
+            label: "Specific audience",
+            status: els.audience.value.trim().length > 8 ? "pass" : "review",
+            note: "Audience input is present and visible in the generated copy."
+          },
+          {
+            label: "Fact bank used",
+            status: facts.length >= 2 ? "pass" : "review",
+            note: `${facts.length} source facts available for draft grounding.`
+          },
+          {
+            label: "No hard performance promise",
+            status: /guarantee|10x|always|never/.test(joined) ? "review" : "pass",
+            note: "Flags unverifiable performance language before publishing."
+          },
+          {
+            label: "Constraints attached",
+            status: constraints.length ? "pass" : "review",
+            note: "Editorial constraints travel with the export payload."
+          }
+        ];
+      }
+
+      function renderDraft() {
+        const packet = state.packet;
+        if (!packet) return;
+        if (state.view === "blog") {
+          els.draftBody.innerHTML = `
+            <div class="draft-card">
+              <div class="chips">
+                <span class="chip good">${packet.tone}</span>
+                <span class="chip edit">${packet.review_state}</span>
+              </div>
+              <label for="blog-editor">
+                Blog draft
+                <textarea id="blog-editor" class="draft-text">${packet.assets.blog}</textarea>
+              </label>
+            </div>`;
+          document.querySelector("#blog-editor").addEventListener("input", (event) => {
+            packet.assets.blog = event.target.value;
+            updateExports();
+          });
+          return;
+        }
+        if (state.view === "social") {
+          els.draftBody.innerHTML = `
+            <div class="caption-list">
+              ${packet.assets.captions
+                .map((caption, index) => `
+                  <div class="caption">
+                    <div class="chips"><span class="chip">${caption.channel}</span></div>
+                    <label for="caption-${index}">
+                      Caption
+                      <textarea id="caption-${index}" data-index="${index}">${caption.text}</textarea>
+                    </label>
+                  </div>`)
+                .join("")}
+            </div>`;
+          els.draftBody.querySelectorAll("textarea").forEach((textarea) => {
+            textarea.addEventListener("input", (event) => {
+              packet.assets.captions[Number(event.target.dataset.index)].text = event.target.value;
+              updateExports();
+            });
+          });
+          return;
+        }
+        els.draftBody.innerHTML = `
+          <div class="draft-card">
+            <label for="email-editor">
+              Email draft
+              <textarea id="email-editor" class="draft-text">${packet.assets.email}</textarea>
+            </label>
+          </div>`;
+        document.querySelector("#email-editor").addEventListener("input", (event) => {
+          packet.assets.email = event.target.value;
+          updateExports();
+        });
+      }
+
+      function updateMetrics() {
+        const packet = state.packet;
+        const wordCount = packet.assets.blog.split(/\s+/).filter(Boolean).length;
+        els.assets.textContent = String(2 + packet.assets.captions.length);
+        els.readTime.textContent = `${Math.max(1, Math.round(wordCount / 220))}m`;
+        els.factsMetric.textContent = String(packet.checks.filter((check) => check.status === "review").length);
+        els.status.textContent = packet.review_state.replaceAll("_", " ");
+      }
+
+      function renderReview() {
+        const packet = state.packet;
+        els.reviewList.innerHTML = packet.checks
+          .map((check) => `<li class="${check.status === "review" ? "warn" : ""}"><strong>${check.label}:</strong> ${check.note}</li>`)
+          .join("");
+      }
+
+      function markdown(packet) {
+        return `# ${packet.title}
+
+Tone: ${packet.tone}
+Review state: ${packet.review_state}
+
+## Blog
+${packet.assets.blog}
+
+## Social captions
+${packet.assets.captions.map((caption) => `### ${caption.channel}\n${caption.text}`).join("\n\n")}
+
+## Email
+${packet.assets.email}
+
+## Reviewer note
+${packet.reviewer_note}`;
+      }
+
+      function updateExports() {
+        const packet = state.packet;
+        packet.review_state = els.reviewState.value;
+        packet.reviewer_note = els.reviewerNote.value;
+        packet.checks = buildChecks(packet.assets.blog, packet.assets.captions, packet.facts, packet.constraints);
+        els.jsonOutput.textContent = JSON.stringify(packet, null, 2);
+        els.markdownOutput.textContent = markdown(packet);
+        renderReview();
+        updateMetrics();
+      }
+
+      function render() {
+        state.packet = makePacket();
+        renderDraft();
+        updateExports();
+      }
+
+      document.querySelector("#generate").addEventListener("click", render);
+      document.querySelector("#reset").addEventListener("click", () => {
+        els.product.value = "Lead quality filter for noisy website forms";
+        els.audience.value = "B2B SaaS founders and sales ops teams";
+        els.tone.value = "practical";
+        els.blogLength.value = "standard";
+        els.cta.value = "demo";
+        els.reviewState.value = "draft";
+        render();
+      });
+
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
+          tab.classList.add("active");
+          state.view = tab.dataset.view;
+          renderDraft();
+        });
+      });
+
+      [els.reviewState, els.reviewerNote].forEach((input) => input.addEventListener("input", updateExports));
+
+      render();
+    </script>
+  </body>
+</html>

@@ -29,6 +29,7 @@ Commerce Scout Demo is a static Pyrimid integration bounty proof. It shows how a
 - Includes a same-day document diff and PII redaction review demo: [`demos/document-redaction-diff/`](demos/document-redaction-diff/).
 - Includes a same-day knowledge-base chatbot demo with grounded answers, citations, refusals, and evaluation handoff: [`demos/knowledge-base-chatbot/`](demos/knowledge-base-chatbot/).
 - Includes a same-day form spam and lead quality filter demo with scoring explanations, routing, and JSON handoff: [`demos/form-spam-filter/`](demos/form-spam-filter/).
+- Includes a same-day blog and social content generator demo with tone controls, editable drafts, review states, and export handoff: [`demos/content-generator/`](demos/content-generator/).
 - Includes a small no-spam community placement note for bug-bounty resource links: [`resources/bug-bounty-community-placement.md`](resources/bug-bounty-community-placement.md).
 - Includes same-day workflow samples for document diffing, PII redaction, and outbound-email scoring: [`resources/fast-ai-workflow-samples.md`](resources/fast-ai-workflow-samples.md).
 - Includes a runnable starter pack for same-day AI/dev workflow tasks: [`resources/fast-workflow-starter-pack.md`](resources/fast-workflow-starter-pack.md).
