@@ -63,7 +63,7 @@ try {
     source: document.querySelector("#catalog-source")?.textContent,
     status: document.querySelector("#run-status")?.textContent,
     first: document.querySelector(".product-card h3")?.textContent,
-    receipt_has_affiliate: document.querySelector("#receipt-output")?.textContent?.includes("af_codex_commerce_scout")
+    receipt_has_affiliate: document.querySelector("#receipt-output")?.textContent?.includes("af_commerce_scout_demo")
   }));
 
   if (errors.length) throw new Error(`Page errors: ${errors.join(" | ")}`);
