@@ -27,6 +27,7 @@ Codex Commerce Scout is a static buyer-agent demo for the MYA/Pyrimid integratio
 - Includes a small no-spam community placement note for bug-bounty resource links: [`resources/bug-bounty-community-placement.md`](resources/bug-bounty-community-placement.md).
 - Includes same-day workflow samples for document diffing, PII redaction, and outbound-email scoring: [`resources/fast-ai-workflow-samples.md`](resources/fast-ai-workflow-samples.md).
 - Includes a runnable starter pack for same-day AI/dev workflow tasks: [`resources/fast-workflow-starter-pack.md`](resources/fast-workflow-starter-pack.md).
+- Includes a web-app milestone template for API, admin dashboard, SaaS/auth, chatbot, and migration jobs: [`resources/web-app-delivery-slice.md`](resources/web-app-delivery-slice.md).
 - Includes a deterministic validation script: `npm run check`.
 
 ## Run locally
