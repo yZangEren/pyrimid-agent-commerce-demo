@@ -23,10 +23,10 @@ const readme = await read("README.md");
 
 assert(app.includes("@pyrimid/sdk"), "app.js must import @pyrimid/sdk");
 assert(app.includes("PyrimidResolver"), "app.js must use PyrimidResolver");
-assert(app.includes("af_codex_commerce_scout"), "affiliate ID missing from app.js");
+assert(app.includes("af_commerce_scout_demo"), "affiliate ID missing from app.js");
 assert(html.includes("src/app.js"), "index.html must load the app module");
 assert(agent.pyrimid?.resolver === "PyrimidResolver", "agent profile must advertise PyrimidResolver");
-assert(x402.affiliateId === "af_codex_commerce_scout", "x402 profile affiliate ID mismatch");
+assert(x402.affiliateId === "af_commerce_scout_demo", "x402 profile affiliate ID mismatch");
 assert(Array.isArray(catalog.products) && catalog.products.length >= 5, "catalog snapshot must include products");
 assert(Number(catalog.total || catalog.products.length) >= catalog.products.length, "catalog total is inconsistent");
 assert(readme.includes("MYA job #20"), "README must identify bounty target");
