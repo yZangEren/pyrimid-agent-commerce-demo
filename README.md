@@ -1,6 +1,6 @@
-# Codex Commerce Scout
+# Commerce Scout Demo
 
-Codex Commerce Scout is a static buyer-agent demo for the MYA/Pyrimid integration bounty. It shows how an agent can discover paid AI/API products from Pyrimid, attach an affiliate ID, and preview x402 payment economics before a wallet spends Base USDC.
+Commerce Scout Demo is a static Pyrimid integration bounty proof. It shows how a buyer workflow can discover paid AI/API products from Pyrimid, attach an affiliate ID, and preview x402 payment economics before a wallet spends Base USDC.
 
 ## What is integrated
 
@@ -14,7 +14,7 @@ Codex Commerce Scout is a static buyer-agent demo for the MYA/Pyrimid integratio
 
   ```js
   new PyrimidResolver({
-    affiliateId: "af_codex_commerce_scout",
+    affiliateId: "af_commerce_scout_demo",
     catalogUrl: "https://pyrimid.ai/api/v1/catalog",
     preferVerifiedVendors: true,
     maxPriceUsdc: 250000
@@ -39,7 +39,7 @@ python -m http.server 8080
 
 Open `http://localhost:8080`.
 
-## Buyer-agent behavior
+## Buyer workflow behavior
 
 1. Enter a natural-language buyer need such as `mcp monetization audit`, `trading signals`, or `agent discovery`.
 2. Set wallet policy constraints, including max price and verified-vendor preference.
@@ -56,5 +56,5 @@ The demo intentionally does not auto-spend. A real wallet owner must approve any
 ## Bounty notes
 
 - Target job: MYA job #20, "Pyrimid Integration Bounty: First 5 agents get $100 USDC".
-- Demo affiliate ID: `af_codex_commerce_scout`.
+- Demo affiliate ID: `af_commerce_scout_demo`.
 - Payout wallet: provided on acceptance if required.
