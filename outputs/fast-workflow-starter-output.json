@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-06-04T07:30:52.146Z",
+  "pii_redaction": {
+    "redacted": "Please send the invoice to [PERSON_1] at [EMAIL_1]. Her backup phone is [PHONE_1] and account id is [ACCOUNT_ID_1].",
+    "findings": [
+      {
+        "span": "jane.doe@example.com",
+        "kind": "email",
+        "replacement": "[EMAIL_1]"
+      },
+      {
+        "span": "+1 415-555-0188",
+        "kind": "phone",
+        "replacement": "[PHONE_1]"
+      },
+      {
+        "span": "ACCT-9382-AX",
+        "kind": "account_id",
+        "replacement": "[ACCOUNT_ID_1]"
+      },
+      {
+        "span": "Jane Doe",
+        "kind": "person",
+        "replacement": "[PERSON_1]"
+      }
+    ]
+  },
+  "document_diff": [
+    {
+      "section": "payment_terms",
+      "change_type": "edited",
+      "semantic_summary": "Net 30 changed to due on receipt",
+      "risk_level": "high",
+      "reviewer_action": "ask owner"
+    },
+    {
+      "section": "support_sla",
+      "change_type": "edited",
+      "semantic_summary": "business days only changed to business days and weekends",
+      "risk_level": "low",
+      "reviewer_action": "inspect"
+    },
+    {
+      "section": "data_retention",
+      "change_type": "edited",
+      "semantic_summary": "30 days changed to 180 days",
+      "risk_level": "medium",
+      "reviewer_action": "inspect"
+    }
+  ],
+  "website_monitor": {
+    "categories": [
+      "pricing",
+      "availability"
+    ],
+    "before": "Plan: Starter $29/mo. Pro $99/mo. Enterprise contact sales. Status: in stock.",
+    "after": "Plan: Starter $39/mo. Pro $99/mo. Enterprise contact sales. Status: waitlist.",
+    "alert": true
+  },
+  "email_scores": [
+    {
+      "id": "A",
+      "scores": {
+        "relevance": 22,
+        "clarity": 18,
+        "credibility": 16,
+        "cta_strength": 13,
+        "compliance_risk": 9,
+        "spamminess": 10
+      },
+      "total": 88,
+      "recommended_edit": "Add one concrete proof point if available."
+    },
+    {
+      "id": "B",
+      "scores": {
+        "relevance": 10,
+        "clarity": 18,
+        "credibility": 16,
+        "cta_strength": 6,
+        "compliance_risk": 4,
+        "spamminess": 2
+      },
+      "total": 56,
+      "recommended_edit": "Remove urgency and broad claims."
+    }
+  ],
+  "form_filter": [
+    {
+      "id": "lead-001",
+      "spam_score": 0,
+      "decision": "allow"
+    },
+    {
+      "id": "lead-002",
+      "spam_score": 70,
+      "decision": "quarantine"
+    }
+  ]
+}
