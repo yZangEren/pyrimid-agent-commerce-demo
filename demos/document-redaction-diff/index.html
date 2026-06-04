@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Document comparison and PII redaction demo with audit logs.">
+    <title>Document Diff and PII Redaction Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202a;
+        --muted: #657386;
+        --line: #d8e0ea;
+        --panel: #ffffff;
+        --band: #f2f6fa;
+        --accent: #0f7b6c;
+        --accent-dark: #0a5d52;
+        --blue: #245b9f;
+        --red: #b7312c;
+        --amber: #9b6500;
+        --green: #16724f;
+        --shadow: 0 18px 42px rgba(25, 38, 54, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(242, 246, 250, 0.97), rgba(250, 252, 253, 0.98)),
+          repeating-linear-gradient(90deg, rgba(36, 91, 159, 0.06) 0 1px, transparent 1px 84px);
+      }
+
+      button,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1220px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 28px 0;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+      }
+
+      .topbar,
+      .review-grid,
+      .output-panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 22px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.45rem, 2.6vw, 2.2rem);
+        line-height: 1.06;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 1rem;
+        line-height: 1.25;
+      }
+
+      h3 {
+        font-size: 0.94rem;
+        line-height: 1.25;
+      }
+
+      .eyebrow {
+        margin-bottom: 5px;
+        color: var(--accent-dark);
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      button {
+        min-height: 40px;
+        border: 0;
+        border-radius: 6px;
+        padding: 0 13px;
+        color: white;
+        background: var(--accent);
+        font-weight: 760;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--accent-dark);
+      }
+
+      button.secondary {
+        border: 1px solid #c6d0dd;
+        color: var(--blue);
+        background: #fff;
+      }
+
+      button.secondary:hover {
+        color: #143b70;
+        background: #f4f7fb;
+      }
+
+      .review-grid {
+        display: grid;
+        grid-template-columns: 330px minmax(0, 1fr);
+        min-height: 650px;
+      }
+
+      .case-panel {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 14px;
+        border-right: 1px solid var(--line);
+        padding: 16px;
+        background: var(--band);
+      }
+
+      .case-list {
+        display: grid;
+        align-content: start;
+        gap: 8px;
+        overflow: auto;
+      }
+
+      .case-button {
+        display: grid;
+        gap: 7px;
+        width: 100%;
+        min-height: 82px;
+        border: 1px solid #d1d9e4;
+        border-radius: 8px;
+        padding: 11px;
+        color: var(--ink);
+        background: #fff;
+        text-align: left;
+        box-shadow: none;
+      }
+
+      .case-button:hover,
+      .case-button.active {
+        border-color: rgba(15, 123, 108, 0.52);
+        background: rgba(15, 123, 108, 0.07);
+      }
+
+      .case-button strong {
+        font-size: 0.9rem;
+      }
+
+      .case-button span {
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+
+      .controls {
+        display: grid;
+        gap: 9px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+      }
+
+      label span {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      select,
+      textarea {
+        width: 100%;
+        min-height: 40px;
+        border: 1px solid #c6d0dd;
+        border-radius: 6px;
+        color: var(--ink);
+        background: white;
+      }
+
+      select {
+        padding: 0 11px;
+      }
+
+      textarea {
+        min-height: 140px;
+        padding: 12px;
+        resize: vertical;
+        line-height: 1.45;
+      }
+
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        outline: 3px solid rgba(15, 123, 108, 0.17);
+      }
+
+      .detail-panel {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        gap: 14px;
+        padding: 16px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric {
+        display: grid;
+        gap: 6px;
+        min-height: 84px;
+        border: 1px solid #dfe5ed;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fbfcfe;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        font-size: 1.24rem;
+        line-height: 1;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        min-height: 23px;
+        border-radius: 999px;
+        padding: 0 8px;
+        color: #2d3c4e;
+        background: #e7edf5;
+        font-size: 0.73rem;
+        font-weight: 760;
+      }
+
+      .pill.high {
+        color: var(--red);
+        background: rgba(183, 49, 44, 0.11);
+      }
+
+      .pill.medium {
+        color: var(--amber);
+        background: rgba(155, 101, 0, 0.12);
+      }
+
+      .pill.low {
+        color: var(--green);
+        background: rgba(22, 114, 79, 0.12);
+      }
+
+      .document-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 12px;
+        min-height: 430px;
+      }
+
+      .document-panel,
+      .audit-panel {
+        border: 1px solid #dfe5ed;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fbfcfe;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 1px solid #dfe5ed;
+        padding: 11px 12px;
+        background: white;
+      }
+
+      .doc-body {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+      }
+
+      .doc-line {
+        display: grid;
+        grid-template-columns: 96px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+      }
+
+      .doc-line span {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .doc-line p {
+        color: #2a3747;
+        font-size: 0.9rem;
+        line-height: 1.44;
+      }
+
+      .changed {
+        border-color: rgba(155, 101, 0, 0.35);
+        background: rgba(155, 101, 0, 0.07);
+      }
+
+      .removed {
+        border-color: rgba(183, 49, 44, 0.31);
+        background: rgba(183, 49, 44, 0.06);
+      }
+
+      .redacted {
+        border-color: rgba(36, 91, 159, 0.3);
+        background: rgba(36, 91, 159, 0.07);
+      }
+
+      mark {
+        border-radius: 4px;
+        padding: 0 4px;
+        color: #0f2744;
+        background: rgba(36, 91, 159, 0.16);
+      }
+
+      .audit-list {
+        display: grid;
+        gap: 9px;
+        max-height: 374px;
+        overflow: auto;
+        padding: 12px;
+      }
+
+      .audit-item {
+        display: grid;
+        gap: 7px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+      }
+
+      .audit-item p {
+        color: #314052;
+        font-size: 0.86rem;
+        line-height: 1.42;
+      }
+
+      .output-panel {
+        padding: 16px;
+      }
+
+      pre {
+        min-height: 180px;
+        margin: 12px 0 0;
+        overflow: auto;
+        border: 1px solid #dfe5ed;
+        border-radius: 8px;
+        padding: 13px;
+        color: #17202a;
+        background: #f7f9fc;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+      }
+
+      @media (max-width: 980px) {
+        .review-grid,
+        .document-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .case-panel {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .metric-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: min(100vw - 20px, 1220px);
+          padding: 10px 0;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .toolbar,
+        .metric-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          width: 100%;
+        }
+
+        .doc-line {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Document review delivery slice</p>
+            <h1 id="app-title">Document Diff and PII Redaction</h1>
+          </div>
+          <div class="toolbar">
+            <button class="secondary" id="toggle-mode" type="button">Show Redacted</button>
+            <button id="export-json" type="button">Export JSON</button>
+          </div>
+        </header>
+
+        <section class="review-grid" aria-label="Document review workspace">
+          <aside class="case-panel">
+            <div>
+              <p class="eyebrow">Review queue</p>
+              <h2>Sample packets</h2>
+            </div>
+            <div class="controls">
+              <label>
+                <span>Policy</span>
+                <select id="policy">
+                  <option value="strict">Strict: redact all PII</option>
+                  <option value="balanced" selected>Balanced: preserve business context</option>
+                  <option value="minimal">Minimal: redact direct contacts only</option>
+                </select>
+              </label>
+              <label>
+                <span>Reviewer note</span>
+                <textarea id="review-note">Need a concise risk summary and redacted handoff for client review.</textarea>
+              </label>
+            </div>
+            <div id="case-list" class="case-list" aria-live="polite"></div>
+          </aside>
+
+          <section class="detail-panel" aria-label="Selected document packet">
+            <div>
+              <p class="eyebrow" id="selected-type">Contract revision</p>
+              <h2 id="selected-title">Vendor agreement renewal</h2>
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric">
+                <span>Risk</span>
+                <strong id="metric-risk">High</strong>
+                <p id="metric-risk-note" class="pill high">payment terms</p>
+              </div>
+              <div class="metric">
+                <span>PII spans</span>
+                <strong id="metric-pii">6</strong>
+                <p class="pill" id="metric-policy">balanced</p>
+              </div>
+              <div class="metric">
+                <span>Meaning changes</span>
+                <strong id="metric-diff">4</strong>
+                <p class="pill medium">needs review</p>
+              </div>
+              <div class="metric">
+                <span>Output</span>
+                <strong id="metric-output">JSON</strong>
+                <p class="pill low">audit log ready</p>
+              </div>
+            </div>
+
+            <div class="document-layout">
+              <section class="document-panel" aria-label="Document output">
+                <div class="panel-header">
+                  <h3 id="doc-heading">Semantic diff</h3>
+                  <span class="pill" id="doc-mode">review view</span>
+                </div>
+                <div id="doc-body" class="doc-body"></div>
+              </section>
+
+              <aside class="audit-panel" aria-label="Audit log">
+                <div class="panel-header">
+                  <h3>Audit log</h3>
+                  <span class="pill" id="audit-count">10 items</span>
+                </div>
+                <div id="audit-list" class="audit-list"></div>
+              </aside>
+            </div>
+          </section>
+        </section>
+
+        <section class="output-panel" aria-label="Handoff JSON">
+          <p class="eyebrow">Handoff packet</p>
+          <h2>Structured output</h2>
+          <pre id="json-output"></pre>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const packets = [
+        {
+          type: "Contract revision",
+          title: "Vendor agreement renewal",
+          risk: "High",
+          riskNote: "payment terms",
+          diffCount: 4,
+          piiCount: 6,
+          lines: [
+            { section: "Parties", state: "redacted", review: "Customer contact: <mark>Maria Chen</mark>, <mark>maria.chen@example.com</mark>, <mark>+1 415 555 0188</mark>.", redacted: "Customer contact: [PERSON], [EMAIL], [PHONE]." },
+            { section: "Term", state: "changed", review: "Renewal changed from 12 months to 24 months with automatic renewal unless notice is given 60 days before expiry.", redacted: "Renewal changed from 12 months to 24 months with automatic renewal unless notice is given 60 days before expiry." },
+            { section: "Payment", state: "changed", review: "Net 30 payment became Net 10, with a 3% late fee after day 11.", redacted: "Net 30 payment became Net 10, with a 3% late fee after day 11." },
+            { section: "Data", state: "redacted", review: "Delivery dataset includes <mark>customer emails</mark>, <mark>billing addresses</mark>, and <mark>account IDs</mark>.", redacted: "Delivery dataset includes [EMAIL_LIST], [ADDRESS_LIST], and [ACCOUNT_ID_LIST]." },
+            { section: "Liability", state: "changed", review: "Liability cap removed for security incidents and unpaid invoices.", redacted: "Liability cap removed for security incidents and unpaid invoices." }
+          ],
+          audit: [
+            { severity: "High", label: "Payment term change", detail: "Net 30 to Net 10 materially changes cash-flow obligation." },
+            { severity: "High", label: "Liability cap change", detail: "Security incident carve-out should be reviewed by legal." },
+            { severity: "Medium", label: "Contact PII", detail: "Person, email, and phone redacted for external handoff." },
+            { severity: "Medium", label: "Dataset PII", detail: "Email, address, and account identifiers redacted by class." }
+          ]
+        },
+        {
+          type: "Support export",
+          title: "Customer ticket redaction",
+          risk: "Medium",
+          riskNote: "direct identifiers",
+          diffCount: 1,
+          piiCount: 8,
+          lines: [
+            { section: "Ticket", state: "redacted", review: "Ticket from <mark>Jordan Smith</mark> at <mark>jordan@retail.test</mark> about order <mark>ORD-449102</mark>.", redacted: "Ticket from [PERSON] at [EMAIL] about order [ORDER_ID]." },
+            { section: "Issue", state: "same", review: "Customer reports that the replacement item was shipped to the wrong location.", redacted: "Customer reports that the replacement item was shipped to the wrong location." },
+            { section: "Address", state: "redacted", review: "Shipping address shown as <mark>88 Market Street, San Francisco, CA 94105</mark>.", redacted: "Shipping address shown as [ADDRESS]." },
+            { section: "Action", state: "changed", review: "Refund option changed from manual manager approval to automatic credit under $50.", redacted: "Refund option changed from manual manager approval to automatic credit under $50." }
+          ],
+          audit: [
+            { severity: "Medium", label: "Customer identity", detail: "Name, email, order ID, and address redacted." },
+            { severity: "Medium", label: "Policy change", detail: "Refund approval rule changed and should be confirmed by ops." },
+            { severity: "Low", label: "Business context", detail: "Issue summary preserved because it contains no direct identifier after redaction." }
+          ]
+        },
+        {
+          type: "Loan note",
+          title: "Financial disclosure comparison",
+          risk: "High",
+          riskNote: "financial terms",
+          diffCount: 5,
+          piiCount: 5,
+          lines: [
+            { section: "Borrower", state: "redacted", review: "Borrower: <mark>Avery Patel</mark>, SSN ending <mark>4432</mark>, email <mark>avery.patel@example.com</mark>.", redacted: "Borrower: [PERSON], SSN ending [SSN_LAST4], email [EMAIL]." },
+            { section: "APR", state: "changed", review: "APR changed from 7.2% fixed to 8.6% variable after month 12.", redacted: "APR changed from 7.2% fixed to 8.6% variable after month 12." },
+            { section: "Penalty", state: "changed", review: "Prepayment penalty was added for payoff before month 18.", redacted: "Prepayment penalty was added for payoff before month 18." },
+            { section: "Collateral", state: "redacted", review: "Collateral includes <mark>vehicle VIN 1HGBH41JXMN109186</mark>.", redacted: "Collateral includes [VIN]." },
+            { section: "Disclosure", state: "removed", review: "Prior version included plain-language variable-rate warning; current version omits it.", redacted: "Prior version included plain-language variable-rate warning; current version omits it." }
+          ],
+          audit: [
+            { severity: "High", label: "APR structure", detail: "Fixed-to-variable change is materially significant." },
+            { severity: "High", label: "Disclosure removal", detail: "Removed warning may require compliance review." },
+            { severity: "Medium", label: "Financial PII", detail: "Name, SSN last four, email, and VIN redacted." }
+          ]
+        }
+      ];
+
+      const state = {
+        selected: 0,
+        redacted: false
+      };
+
+      const caseList = document.querySelector("#case-list");
+      const selectedType = document.querySelector("#selected-type");
+      const selectedTitle = document.querySelector("#selected-title");
+      const metricRisk = document.querySelector("#metric-risk");
+      const metricRiskNote = document.querySelector("#metric-risk-note");
+      const metricPii = document.querySelector("#metric-pii");
+      const metricPolicy = document.querySelector("#metric-policy");
+      const metricDiff = document.querySelector("#metric-diff");
+      const docHeading = document.querySelector("#doc-heading");
+      const docMode = document.querySelector("#doc-mode");
+      const docBody = document.querySelector("#doc-body");
+      const auditList = document.querySelector("#audit-list");
+      const auditCount = document.querySelector("#audit-count");
+      const jsonOutput = document.querySelector("#json-output");
+      const policy = document.querySelector("#policy");
+      const reviewNote = document.querySelector("#review-note");
+      const toggleMode = document.querySelector("#toggle-mode");
+
+      function riskClass(risk) {
+        return risk.toLowerCase() === "high" ? "high" : risk.toLowerCase() === "medium" ? "medium" : "low";
+      }
+
+      function renderCases() {
+        caseList.innerHTML = "";
+        packets.forEach((packet, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `case-button${index === state.selected ? " active" : ""}`;
+          button.innerHTML = `
+            <strong>${packet.title}</strong>
+            <span>${packet.type}</span>
+            <span>
+              <span class="pill ${riskClass(packet.risk)}">${packet.risk}</span>
+              <span class="pill">${packet.piiCount} PII</span>
+            </span>
+          `;
+          button.addEventListener("click", () => {
+            state.selected = index;
+            render();
+          });
+          caseList.append(button);
+        });
+      }
+
+      function handoff(packet) {
+        return {
+          packet_id: packet.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+          review_type: packet.type,
+          risk: packet.risk,
+          risk_note: packet.riskNote,
+          policy: policy.value,
+          reviewer_note: reviewNote.value,
+          pii_spans: packet.piiCount,
+          meaning_changes: packet.diffCount,
+          redaction_mode: state.redacted ? "redacted" : "review",
+          lines: packet.lines.map((line) => ({
+            section: line.section,
+            state: line.state || "same",
+            output: state.redacted ? line.redacted : line.review.replace(/<\/?mark>/g, "")
+          })),
+          audit_log: packet.audit,
+          next_engineering_step: "Wire this schema to PDF/DOCX/text extraction, deterministic PII detectors, optional LLM review for ambiguous spans, and a reviewer approval queue."
+        };
+      }
+
+      function renderDetail() {
+        const packet = packets[state.selected];
+        selectedType.textContent = packet.type;
+        selectedTitle.textContent = packet.title;
+        metricRisk.textContent = packet.risk;
+        metricRiskNote.className = `pill ${riskClass(packet.risk)}`;
+        metricRiskNote.textContent = packet.riskNote;
+        metricPii.textContent = packet.piiCount;
+        metricPolicy.textContent = policy.value;
+        metricDiff.textContent = packet.diffCount;
+        docHeading.textContent = state.redacted ? "Redacted handoff" : "Semantic diff";
+        docMode.textContent = state.redacted ? "redacted view" : "review view";
+        toggleMode.textContent = state.redacted ? "Show Diff" : "Show Redacted";
+
+        docBody.innerHTML = "";
+        packet.lines.forEach((line) => {
+          const item = document.createElement("div");
+          item.className = `doc-line ${line.state || ""}`;
+          item.innerHTML = `<span>${line.section}</span><p>${state.redacted ? line.redacted : line.review}</p>`;
+          docBody.append(item);
+        });
+
+        auditList.innerHTML = "";
+        packet.audit.forEach((entry) => {
+          const item = document.createElement("article");
+          item.className = "audit-item";
+          item.innerHTML = `
+            <span class="pill ${riskClass(entry.severity)}">${entry.severity}</span>
+            <h3>${entry.label}</h3>
+            <p>${entry.detail}</p>
+          `;
+          auditList.append(item);
+        });
+
+        auditCount.textContent = `${packet.audit.length} items`;
+        jsonOutput.textContent = JSON.stringify(handoff(packet), null, 2);
+      }
+
+      function render() {
+        renderCases();
+        renderDetail();
+      }
+
+      toggleMode.addEventListener("click", () => {
+        state.redacted = !state.redacted;
+        renderDetail();
+      });
+
+      document.querySelector("#export-json").addEventListener("click", () => {
+        renderDetail();
+        jsonOutput.focus();
+      });
+
+      policy.addEventListener("change", renderDetail);
+      reviewNote.addEventListener("input", renderDetail);
+
+      render();
+    </script>
+  </body>
+</html>
