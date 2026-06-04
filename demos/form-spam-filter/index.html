@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="AI-style form spam and lead quality filter demo with scoring, explanations, routing, and JSON handoff.">
+    <title>Form Spam Filter Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172033;
+        --muted: #667085;
+        --line: #d4dce8;
+        --panel: #ffffff;
+        --band: #f4f7fb;
+        --teal: #087066;
+        --teal-dark: #07564f;
+        --blue: #235da8;
+        --amber: #9a6200;
+        --red: #b2362f;
+        --green: #13734d;
+        --violet: #6653bf;
+        --shadow: 0 18px 42px rgba(31, 45, 61, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(245, 248, 252, 0.98), rgba(251, 252, 254, 0.98)),
+          linear-gradient(90deg, rgba(8, 112, 102, 0.06), rgba(35, 93, 168, 0.05));
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        min-height: 39px;
+        border: 0;
+        border-radius: 6px;
+        padding: 0 13px;
+        color: white;
+        background: var(--teal);
+        font-weight: 780;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--teal-dark);
+      }
+
+      button.secondary {
+        border: 1px solid #c5cfdd;
+        color: var(--blue);
+        background: white;
+      }
+
+      button.secondary:hover {
+        color: #143b70;
+        background: #f4f7fb;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 40px;
+        border: 1px solid #c5cfdd;
+        border-radius: 6px;
+        padding: 0 11px;
+        color: var(--ink);
+        background: white;
+      }
+
+      textarea {
+        min-height: 112px;
+        padding: 10px 11px;
+        line-height: 1.45;
+        resize: vertical;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.5rem, 2.8vw, 2.28rem);
+        line-height: 1.06;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 1rem;
+        line-height: 1.25;
+      }
+
+      h3 {
+        font-size: 0.94rem;
+        line-height: 1.25;
+      }
+
+      .shell {
+        width: min(1280px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 28px 0;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+      }
+
+      .topbar,
+      .main-grid,
+      .output-panel,
+      .metrics-row {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 20px 22px;
+      }
+
+      .eyebrow {
+        margin-bottom: 5px;
+        color: var(--teal-dark);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .status-strip,
+      .toolbar,
+      .chips,
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .status-pill,
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 27px;
+        border-radius: 999px;
+        padding: 0 10px;
+        color: #344054;
+        background: #e8eef6;
+        font-size: 0.76rem;
+        font-weight: 760;
+      }
+
+      .status-pill.good,
+      .chip.good {
+        color: var(--green);
+        background: rgba(19, 115, 77, 0.12);
+      }
+
+      .chip.warn,
+      .status-pill.warn {
+        color: var(--amber);
+        background: rgba(154, 98, 0, 0.13);
+      }
+
+      .chip.stop,
+      .status-pill.stop {
+        color: var(--red);
+        background: rgba(178, 54, 47, 0.12);
+      }
+
+      .metrics-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        overflow: hidden;
+      }
+
+      .metric {
+        display: grid;
+        gap: 5px;
+        min-height: 92px;
+        padding: 16px;
+        border-right: 1px solid var(--line);
+      }
+
+      .metric:last-child {
+        border-right: 0;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        font-size: 1.55rem;
+        line-height: 1;
+      }
+
+      .metric small {
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 340px minmax(0, 1fr) 340px;
+        min-height: 710px;
+        overflow: hidden;
+      }
+
+      .config-panel,
+      .queue-panel,
+      .detail-panel {
+        display: grid;
+        align-content: start;
+        gap: 14px;
+        padding: 16px;
+      }
+
+      .config-panel {
+        border-right: 1px solid var(--line);
+        background: var(--band);
+      }
+
+      .detail-panel {
+        border-left: 1px solid var(--line);
+        background: #fbfcfe;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .field-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .inline-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .checkbox {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--ink);
+        text-transform: none;
+      }
+
+      .checkbox input {
+        width: 17px;
+        min-height: 17px;
+      }
+
+      .queue-panel {
+        gap: 0;
+        padding: 0;
+      }
+
+      .queue-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .submission-list {
+        display: grid;
+        max-height: 641px;
+        overflow: auto;
+      }
+
+      .submission {
+        display: grid;
+        gap: 9px;
+        width: 100%;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        border-radius: 0;
+        padding: 14px 16px;
+        color: var(--ink);
+        background: white;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .submission:hover,
+      .submission.active {
+        background: #f6f9fc;
+      }
+
+      .submission.active {
+        box-shadow: inset 4px 0 0 var(--teal);
+      }
+
+      .submission-top {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .identity {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .identity strong,
+      .identity span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .identity span {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .score {
+        min-width: 56px;
+        border-radius: 999px;
+        padding: 6px 9px;
+        color: white;
+        background: var(--green);
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .score.review {
+        background: var(--amber);
+      }
+
+      .score.block {
+        background: var(--red);
+      }
+
+      .preview {
+        display: -webkit-box;
+        overflow: hidden;
+        color: #344054;
+        font-size: 0.88rem;
+        line-height: 1.42;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .bar {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e8eef6;
+      }
+
+      .bar span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, var(--red), var(--amber), var(--green));
+      }
+
+      .detail-card {
+        display: grid;
+        gap: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 13px;
+        background: white;
+      }
+
+      .decision {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .decision-gauge {
+        display: grid;
+        place-items: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        color: white;
+        background: var(--green);
+        font-weight: 850;
+      }
+
+      .decision-gauge.review {
+        background: var(--amber);
+      }
+
+      .decision-gauge.block {
+        background: var(--red);
+      }
+
+      .reason-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .reason-list li {
+        border-left: 3px solid var(--blue);
+        padding: 8px 10px;
+        border-radius: 0 6px 6px 0;
+        color: #344054;
+        background: #f5f8fc;
+        font-size: 0.88rem;
+        line-height: 1.35;
+      }
+
+      .reason-list li.negative {
+        border-color: var(--red);
+        background: rgba(178, 54, 47, 0.07);
+      }
+
+      .reason-list li.positive {
+        border-color: var(--green);
+        background: rgba(19, 115, 77, 0.08);
+      }
+
+      .route-grid {
+        display: grid;
+        gap: 8px;
+      }
+
+      .route {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 10px;
+        align-items: center;
+        border: 1px solid #e0e6ef;
+        border-radius: 7px;
+        padding: 9px;
+        background: #fbfcfe;
+      }
+
+      .route strong {
+        color: var(--teal-dark);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+      }
+
+      .route span {
+        color: #344054;
+        font-size: 0.88rem;
+        line-height: 1.35;
+      }
+
+      .output-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        overflow: hidden;
+      }
+
+      .output-block {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .output-block:first-child {
+        border-right: 1px solid var(--line);
+      }
+
+      pre {
+        overflow: auto;
+        max-height: 360px;
+        margin: 0;
+        border: 1px solid #dce3ed;
+        border-radius: 8px;
+        padding: 12px;
+        color: #102033;
+        background: #f7fafc;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+      }
+
+      .empty {
+        padding: 20px;
+        color: var(--muted);
+      }
+
+      @media (max-width: 1080px) {
+        .main-grid,
+        .output-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .config-panel,
+        .detail-panel,
+        .output-block:first-child {
+          border-right: 0;
+        }
+
+        .detail-panel {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+        }
+
+        .metrics-row {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .metric:nth-child(2) {
+          border-right: 0;
+        }
+
+        .metric:nth-child(1),
+        .metric:nth-child(2) {
+          border-bottom: 1px solid var(--line);
+        }
+      }
+
+      @media (max-width: 700px) {
+        .shell {
+          width: min(100vw - 20px, 1280px);
+          padding: 10px 0;
+        }
+
+        .topbar,
+        .queue-header {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .metrics-row,
+        .inline-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .metric {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .metric:last-child {
+          border-bottom: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Lead quality triage demo</p>
+            <h1 id="app-title">Form Spam Filter</h1>
+          </div>
+          <div class="status-strip" aria-label="Workflow status">
+            <span class="status-pill good">deterministic scoring</span>
+            <span class="status-pill">human review queue</span>
+            <span class="status-pill warn">JSON handoff</span>
+          </div>
+        </header>
+
+        <section class="metrics-row" aria-label="Queue metrics">
+          <div class="metric">
+            <span>Total scored</span>
+            <strong id="metric-total">0</strong>
+            <small>Sample and drafted form submissions.</small>
+          </div>
+          <div class="metric">
+            <span>Allowed</span>
+            <strong id="metric-allow">0</strong>
+            <small>High-confidence legitimate leads.</small>
+          </div>
+          <div class="metric">
+            <span>Needs review</span>
+            <strong id="metric-review">0</strong>
+            <small>Ambiguous inquiries held for staff.</small>
+          </div>
+          <div class="metric">
+            <span>Blocked</span>
+            <strong id="metric-block">0</strong>
+            <small>Spam, bot, or low-quality signals.</small>
+          </div>
+        </section>
+
+        <section class="main-grid" aria-label="Spam filter workspace">
+          <aside class="config-panel" aria-label="Filter controls">
+            <div>
+              <p class="eyebrow">Policy</p>
+              <h2>Scoring controls</h2>
+            </div>
+            <div class="field-grid">
+              <label for="strictness">
+                Strictness
+                <input id="strictness" type="range" min="0" max="100" value="58">
+              </label>
+              <div class="inline-grid">
+                <label for="allow-threshold">
+                  Allow score
+                  <input id="allow-threshold" type="number" min="30" max="100" value="72">
+                </label>
+                <label for="block-threshold">
+                  Block below
+                  <input id="block-threshold" type="number" min="0" max="70" value="42">
+                </label>
+              </div>
+              <label for="source-filter">
+                Source
+                <select id="source-filter">
+                  <option value="all">All sources</option>
+                  <option value="contact">Contact form</option>
+                  <option value="demo">Demo request</option>
+                  <option value="newsletter">Newsletter</option>
+                </select>
+              </label>
+              <label class="checkbox">
+                <input id="penalize-free-email" type="checkbox" checked>
+                <span>Penalize disposable or free-email lead signals</span>
+              </label>
+            </div>
+
+            <div class="detail-card">
+              <h2>Draft a submission</h2>
+              <label for="draft-name">
+                Name
+                <input id="draft-name" value="Alex Morgan">
+              </label>
+              <label for="draft-email">
+                Email
+                <input id="draft-email" value="alex@northstarops.io">
+              </label>
+              <label for="draft-message">
+                Message
+                <textarea id="draft-message">We run a small B2B software team and want pricing for a spam filter that can flag junk demo requests before they reach sales. Can you share scope and timeline?</textarea>
+              </label>
+              <div class="button-row">
+                <button id="score-draft" type="button">Score</button>
+                <button id="reset-draft" class="secondary" type="button">Reset</button>
+              </div>
+            </div>
+          </aside>
+
+          <section class="queue-panel" aria-label="Submission queue">
+            <div class="queue-header">
+              <div>
+                <p class="eyebrow">Inbox</p>
+                <h2>Scored submissions</h2>
+              </div>
+              <div class="toolbar">
+                <button id="sample-all" class="secondary" type="button">All</button>
+                <button id="sample-review" class="secondary" type="button">Review</button>
+                <button id="sample-block" class="secondary" type="button">Blocked</button>
+              </div>
+            </div>
+            <div id="submission-list" class="submission-list" aria-live="polite"></div>
+          </section>
+
+          <aside class="detail-panel" aria-label="Submission detail">
+            <div>
+              <p class="eyebrow">Decision</p>
+              <h2>Routing explanation</h2>
+            </div>
+            <div id="detail-content" class="detail-card">
+              <p class="empty">Select a submission to inspect scoring evidence.</p>
+            </div>
+            <div class="detail-card">
+              <h2>Routing map</h2>
+              <div class="route-grid" id="route-map"></div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="output-panel" aria-label="Handoff output">
+          <div class="output-block">
+            <div>
+              <p class="eyebrow">Operations handoff</p>
+              <h2>Queue export</h2>
+            </div>
+            <pre id="queue-output">Run the filter to generate queue JSON.</pre>
+          </div>
+          <div class="output-block">
+            <div>
+              <p class="eyebrow">Implementation scope</p>
+              <h2>First paid milestone</h2>
+            </div>
+            <pre>{
+  "milestone": "same-day spam filter prototype",
+  "inputs": ["web form payload", "source", "timestamp", "optional CRM status"],
+  "outputs": ["decision", "lead_score", "risk_reasons", "routing_queue"],
+  "handoff": ["JSON API contract", "review queue copy", "threshold notes"],
+  "next_step": "connect to the buyer's form endpoint, CRM, or email workflow"
+}</pre>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const samples = [
+        {
+          id: "lead-001",
+          source: "demo",
+          name: "Maya Chen",
+          email: "maya@ledgernest.com",
+          message:
+            "We are a fintech support team getting fake demo requests every morning. Looking for a lightweight scoring layer with review reasons and CRM handoff.",
+          ipAgeDays: 620,
+          pageTimeSeconds: 93,
+          honeypot: false
+        },
+        {
+          id: "lead-002",
+          source: "contact",
+          name: "John Smith",
+          email: "bestseo233@maildrop.cc",
+          message:
+            "Hello dear webmaster!!! We offer guaranteed backlinks, crypto investment, casino traffic and SEO package. Reply now for urgent deal.",
+          ipAgeDays: 1,
+          pageTimeSeconds: 4,
+          honeypot: true
+        },
+        {
+          id: "lead-003",
+          source: "newsletter",
+          name: "Priya N.",
+          email: "priya@gmail.com",
+          message:
+            "I read your automation notes and want a quick quote for filtering low-quality leads. We use Webflow and HubSpot.",
+          ipAgeDays: 32,
+          pageTimeSeconds: 47,
+          honeypot: false
+        },
+        {
+          id: "lead-004",
+          source: "contact",
+          name: "Kevin",
+          email: "sales@northstarops.io",
+          message:
+            "Can you build a daily digest that shows which trial signup forms are likely real buyers versus vendors or spam? We can share examples after NDA.",
+          ipAgeDays: 410,
+          pageTimeSeconds: 118,
+          honeypot: false
+        },
+        {
+          id: "lead-005",
+          source: "demo",
+          name: "x",
+          email: "claimnow@tempmail.plus",
+          message:
+            "Win reward claim wallet bonus free money transfer urgent telegram whatsapp click http://short.example/best",
+          ipAgeDays: 0,
+          pageTimeSeconds: 2,
+          honeypot: true
+        }
+      ];
+
+      const suspiciousTerms = [
+        "casino",
+        "crypto investment",
+        "guaranteed",
+        "free money",
+        "telegram",
+        "whatsapp",
+        "urgent deal",
+        "claim wallet",
+        "backlinks"
+      ];
+
+      const businessTerms = [
+        "team",
+        "quote",
+        "crm",
+        "hubspot",
+        "webflow",
+        "demo",
+        "filter",
+        "scoring",
+        "workflow",
+        "support",
+        "handoff"
+      ];
+
+      const state = {
+        selectedId: samples[0].id,
+        view: "all",
+        drafted: null
+      };
+
+      const els = {
+        strictness: document.querySelector("#strictness"),
+        allowThreshold: document.querySelector("#allow-threshold"),
+        blockThreshold: document.querySelector("#block-threshold"),
+        sourceFilter: document.querySelector("#source-filter"),
+        penalizeFreeEmail: document.querySelector("#penalize-free-email"),
+        list: document.querySelector("#submission-list"),
+        detail: document.querySelector("#detail-content"),
+        routes: document.querySelector("#route-map"),
+        queueOutput: document.querySelector("#queue-output"),
+        total: document.querySelector("#metric-total"),
+        allow: document.querySelector("#metric-allow"),
+        review: document.querySelector("#metric-review"),
+        block: document.querySelector("#metric-block"),
+        draftName: document.querySelector("#draft-name"),
+        draftEmail: document.querySelector("#draft-email"),
+        draftMessage: document.querySelector("#draft-message")
+      };
+
+      function domainOf(email) {
+        return email.split("@")[1]?.toLowerCase() || "";
+      }
+
+      function hasFreeOrDisposableEmail(email) {
+        const domain = domainOf(email);
+        return [
+          "gmail.com",
+          "yahoo.com",
+          "outlook.com",
+          "maildrop.cc",
+          "tempmail.plus",
+          "proton.me"
+        ].includes(domain);
+      }
+
+      function scoreSubmission(item) {
+        const strictness = Number(els.strictness.value);
+        const text = `${item.name} ${item.email} ${item.message}`.toLowerCase();
+        let score = 66;
+        const reasons = [];
+
+        const matchedBusiness = businessTerms.filter((term) => text.includes(term));
+        if (matchedBusiness.length) {
+          const delta = Math.min(18, matchedBusiness.length * 4);
+          score += delta;
+          reasons.push({
+            type: "positive",
+            text: `Business-context terms found: ${matchedBusiness.slice(0, 4).join(", ")}.`
+          });
+        }
+
+        const matchedSuspicious = suspiciousTerms.filter((term) => text.includes(term));
+        if (matchedSuspicious.length) {
+          const delta = Math.min(38, matchedSuspicious.length * 8);
+          score -= delta;
+          reasons.push({
+            type: "negative",
+            text: `Spam-like terms found: ${matchedSuspicious.slice(0, 4).join(", ")}.`
+          });
+        }
+
+        if (item.honeypot) {
+          score -= 30;
+          reasons.push({ type: "negative", text: "Hidden honeypot field was filled." });
+        }
+
+        if (item.pageTimeSeconds < 8) {
+          score -= 16;
+          reasons.push({ type: "negative", text: "Form was submitted faster than a human review window." });
+        } else if (item.pageTimeSeconds > 40) {
+          score += 7;
+          reasons.push({ type: "positive", text: "Page dwell time suggests a real reader." });
+        }
+
+        if (item.ipAgeDays < 3) {
+          score -= 12;
+          reasons.push({ type: "negative", text: "Network reputation is too new for auto-allow." });
+        } else if (item.ipAgeDays > 90) {
+          score += 5;
+          reasons.push({ type: "positive", text: "Network reputation has a stable history." });
+        }
+
+        if (els.penalizeFreeEmail.checked && hasFreeOrDisposableEmail(item.email)) {
+          const disposable = /maildrop|tempmail/.test(domainOf(item.email));
+          score -= disposable ? 22 : 6;
+          reasons.push({
+            type: disposable ? "negative" : "neutral",
+            text: disposable
+              ? "Disposable email domain detected."
+              : "Free email domain: allow only with stronger message quality."
+          });
+        } else if (!hasFreeOrDisposableEmail(item.email)) {
+          score += 8;
+          reasons.push({ type: "positive", text: "Company-domain email improves confidence." });
+        }
+
+        score -= Math.round((strictness - 50) / 5);
+        score = Math.max(0, Math.min(100, score));
+
+        const allowThreshold = Number(els.allowThreshold.value);
+        const blockThreshold = Number(els.blockThreshold.value);
+        let decision = "review";
+        if (score >= allowThreshold) decision = "allow";
+        if (score < blockThreshold) decision = "block";
+
+        if (!reasons.length) {
+          reasons.push({ type: "neutral", text: "No strong positive or negative signal found." });
+        }
+
+        return {
+          ...item,
+          score,
+          decision,
+          reasons,
+          route:
+            decision === "allow"
+              ? "Send to sales inbox and CRM as qualified lead."
+              : decision === "review"
+                ? "Hold in review queue with explanation and source payload."
+                : "Suppress from sales inbox and keep audit record."
+        };
+      }
+
+      function allItems() {
+        return state.drafted ? [state.drafted, ...samples] : samples;
+      }
+
+      function filteredItems() {
+        const source = els.sourceFilter.value;
+        return allItems()
+          .map(scoreSubmission)
+          .filter((item) => source === "all" || item.source === source)
+          .filter((item) => state.view === "all" || item.decision === state.view);
+      }
+
+      function decisionClass(decision) {
+        return decision === "allow" ? "" : decision === "review" ? "review" : "block";
+      }
+
+      function renderMetrics(items) {
+        const scored = items.map(scoreSubmission);
+        els.total.textContent = scored.length;
+        els.allow.textContent = scored.filter((item) => item.decision === "allow").length;
+        els.review.textContent = scored.filter((item) => item.decision === "review").length;
+        els.block.textContent = scored.filter((item) => item.decision === "block").length;
+      }
+
+      function renderList() {
+        const items = filteredItems();
+        renderMetrics(allItems());
+
+        if (!items.length) {
+          els.list.innerHTML = '<p class="empty">No submissions match this view.</p>';
+          els.detail.innerHTML = '<p class="empty">Select a submission to inspect scoring evidence.</p>';
+          return;
+        }
+
+        if (!items.some((item) => item.id === state.selectedId)) {
+          state.selectedId = items[0].id;
+        }
+
+        els.list.innerHTML = items
+          .map((item) => {
+            const active = item.id === state.selectedId ? " active" : "";
+            const scoreClass = decisionClass(item.decision);
+            return `
+              <button class="submission${active}" type="button" data-id="${item.id}">
+                <div class="submission-top">
+                  <div class="identity">
+                    <strong>${item.name}</strong>
+                    <span>${item.email} · ${item.source}</span>
+                  </div>
+                  <span class="score ${scoreClass}">${item.score}</span>
+                </div>
+                <p class="preview">${item.message}</p>
+                <div class="bar" aria-hidden="true"><span style="width: ${item.score}%"></span></div>
+                <div class="chips">
+                  <span class="chip ${item.decision === "allow" ? "good" : item.decision === "block" ? "stop" : "warn"}">${item.decision}</span>
+                  <span class="chip">${item.pageTimeSeconds}s on page</span>
+                </div>
+              </button>`;
+          })
+          .join("");
+
+        els.list.querySelectorAll(".submission").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.selectedId = button.dataset.id;
+            render();
+          });
+        });
+      }
+
+      function renderDetail() {
+        const selected = allItems().map(scoreSubmission).find((item) => item.id === state.selectedId);
+        if (!selected) return;
+        const scoreClass = decisionClass(selected.decision);
+        els.detail.innerHTML = `
+          <div class="decision">
+            <div class="decision-gauge ${scoreClass}">${selected.score}</div>
+            <div>
+              <h3>${selected.decision.toUpperCase()}</h3>
+              <p class="preview">${selected.route}</p>
+            </div>
+          </div>
+          <div class="chips">
+            <span class="chip">${selected.source}</span>
+            <span class="chip">${domainOf(selected.email) || "no domain"}</span>
+            <span class="chip ${selected.honeypot ? "stop" : "good"}">${selected.honeypot ? "honeypot hit" : "honeypot clear"}</span>
+          </div>
+          <ul class="reason-list">
+            ${selected.reasons
+              .map((reason) => `<li class="${reason.type === "negative" ? "negative" : reason.type === "positive" ? "positive" : ""}">${reason.text}</li>`)
+              .join("")}
+          </ul>`;
+      }
+
+      function renderRoutes() {
+        els.routes.innerHTML = `
+          <div class="route"><strong>Allow</strong><span>Push to CRM, notify sales, keep score and explanation.</span></div>
+          <div class="route"><strong>Review</strong><span>Hold for staff triage with reasons and original payload.</span></div>
+          <div class="route"><strong>Block</strong><span>Suppress sales notification, retain audit log for tuning.</span></div>`;
+      }
+
+      function renderOutput() {
+        const payload = allItems().map(scoreSubmission).map((item) => ({
+          id: item.id,
+          source: item.source,
+          name: item.name,
+          email_domain: domainOf(item.email),
+          decision: item.decision,
+          lead_score: item.score,
+          reasons: item.reasons.map((reason) => reason.text),
+          route: item.route
+        }));
+        els.queueOutput.textContent = JSON.stringify({
+          generated_at: new Date().toISOString(),
+          policy: {
+            strictness: Number(els.strictness.value),
+            allow_threshold: Number(els.allowThreshold.value),
+            block_below: Number(els.blockThreshold.value),
+            penalize_free_email: els.penalizeFreeEmail.checked
+          },
+          submissions: payload
+        }, null, 2);
+      }
+
+      function render() {
+        renderList();
+        renderDetail();
+        renderRoutes();
+        renderOutput();
+      }
+
+      document.querySelector("#sample-all").addEventListener("click", () => {
+        state.view = "all";
+        render();
+      });
+
+      document.querySelector("#sample-review").addEventListener("click", () => {
+        state.view = "review";
+        render();
+      });
+
+      document.querySelector("#sample-block").addEventListener("click", () => {
+        state.view = "block";
+        render();
+      });
+
+      document.querySelector("#score-draft").addEventListener("click", () => {
+        state.drafted = {
+          id: "draft-001",
+          source: "demo",
+          name: els.draftName.value.trim() || "Draft lead",
+          email: els.draftEmail.value.trim() || "unknown@example.com",
+          message: els.draftMessage.value.trim() || "No message provided.",
+          ipAgeDays: 180,
+          pageTimeSeconds: 64,
+          honeypot: false
+        };
+        state.selectedId = "draft-001";
+        state.view = "all";
+        render();
+      });
+
+      document.querySelector("#reset-draft").addEventListener("click", () => {
+        state.drafted = null;
+        state.selectedId = samples[0].id;
+        render();
+      });
+
+      [
+        els.strictness,
+        els.allowThreshold,
+        els.blockThreshold,
+        els.sourceFilter,
+        els.penalizeFreeEmail
+      ].forEach((control) => control.addEventListener("input", render));
+
+      render();
+    </script>
+  </body>
+</html>
