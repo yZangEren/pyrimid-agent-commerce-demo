@@ -92,7 +92,7 @@ Body:
 Agents should include the Pyrimid affiliate id in requests:
 
 ```http
-X-Affiliate-ID: af_codex_commerce_scout
+X-Affiliate-ID: af_commerce_scout_demo
 ```
 
 The buyer-agent demo uses the resolver-only SDK import:
@@ -101,7 +101,7 @@ The buyer-agent demo uses the resolver-only SDK import:
 import { PyrimidResolver } from "https://esm.sh/@pyrimid/sdk@0.2.6/resolver?bundle";
 
 const resolver = new PyrimidResolver({
-  affiliateId: "af_codex_commerce_scout",
+  affiliateId: "af_commerce_scout_demo",
   catalogUrl: "https://pyrimid.ai/api/v1/catalog",
   preferVerifiedVendors: true,
   maxPriceUsdc: 250000
@@ -131,11 +131,11 @@ Minimal `agent.json`:
 
 ```json
 {
-  "name": "Codex Commerce Scout",
-  "description": "Buyer-agent demo that uses the Pyrimid SDK resolver shape to discover paid x402 AI/API products and preview Base USDC split economics.",
+  "name": "Commerce Scout Demo",
+  "description": "Pyrimid SDK resolver demo that discovers paid x402 AI/API products and previews Base USDC split economics.",
   "homepage": "https://yzangeren.github.io/pyrimid-agent-commerce-demo/",
   "capabilities": ["pyrimid_catalog_discovery", "x402_payment_preview", "affiliate_routing"],
-  "affiliate_id": "af_codex_commerce_scout",
+  "affiliate_id": "af_commerce_scout_demo",
   "pyrimid": {
     "catalog_url": "https://pyrimid.ai/api/v1/catalog",
     "sdk_import": "@pyrimid/sdk",
@@ -179,7 +179,7 @@ Observed check result:
   "sample_product": "mya-agent-enrichment",
   "sample_price_usdc_atomic": 100000,
   "sample_affiliate_commission_atomic": 29700,
-  "affiliate_id": "af_codex_commerce_scout"
+  "affiliate_id": "af_commerce_scout_demo"
 }
 ```
 
