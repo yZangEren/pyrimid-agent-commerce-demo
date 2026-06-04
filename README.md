@@ -24,6 +24,7 @@ Codex Commerce Scout is a static buyer-agent demo for the MYA/Pyrimid integratio
 - Reads Pyrimid catalog data from the live API with a local snapshot fallback.
 - Provides `/.well-known/agent.json`, `/.well-known/x402.json`, `agents.txt`, and `llms.txt` so agents and reviewers can inspect the integration.
 - Includes a practical guide: [`guides/sell-paid-mcp-tool-with-x402-pyrimid.md`](guides/sell-paid-mcp-tool-with-x402-pyrimid.md).
+- Includes a small no-spam community placement note for bug-bounty resource links: [`resources/bug-bounty-community-placement.md`](resources/bug-bounty-community-placement.md).
 - Includes a deterministic validation script: `npm run check`.
 
 ## Run locally
