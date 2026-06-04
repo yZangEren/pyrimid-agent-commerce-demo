@@ -1,10 +1,10 @@
 {
   "x402Version": 1,
-  "name": "Codex Commerce Scout",
-  "description": "Agent-readable Pyrimid integration demo for paid tool discovery and commission previews.",
+  "name": "Commerce Scout Demo",
+  "description": "Pyrimid integration demo for paid tool discovery and commission previews.",
   "network": "base",
   "asset": "USDC",
-  "affiliateId": "af_codex_commerce_scout",
+  "affiliateId": "af_commerce_scout_demo",
   "catalog": "https://pyrimid.ai/api/v1/catalog",
   "routes": [
     {
