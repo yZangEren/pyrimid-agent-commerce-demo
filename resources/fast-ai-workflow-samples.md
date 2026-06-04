@@ -101,6 +101,127 @@ Sample JSON output:
 }
 ```
 
+## 4. Excel and Batch Automation Script
+
+Input contract:
+
+- `workbook_path`: XLSX or CSV file path.
+- `batch_command`: existing Windows batch command or executable path.
+- `dry_run`: true by default until sample output is approved.
+
+Script structure:
+
+| Component | Purpose |
+| --- | --- |
+| `config.yaml` | File paths, sheet names, column mappings, and dry-run setting |
+| `validate_inputs.py` | Checks required files, columns, and writable output directory |
+| `run_workflow.py` | Reads tabular data, calls the batch step, writes outputs |
+| `logs/` | Timestamped run log with row counts and errors |
+
+Synthetic run log:
+
+```text
+rows_loaded=42
+rows_valid=40
+rows_skipped=2
+batch_calls=40
+output_file=outputs/result_2026-06-04.csv
+dry_run=true
+```
+
+## 5. MongoDB Employee Database Skeleton
+
+Collections:
+
+| Collection | Fields |
+| --- | --- |
+| `employees` | employee_code, department_id, role_id, status, start_date, manager_code |
+| `departments` | name, cost_center, active |
+| `roles` | title, level, permissions |
+| `audit_events` | actor, action, entity_id, timestamp, diff |
+
+Minimal API endpoints:
+
+```text
+GET    /employees
+POST   /employees
+PATCH  /employees/:id
+GET    /departments
+GET    /audit-events?employee_id=...
+```
+
+Design notes:
+
+- Synthetic seed data only.
+- No real employee PII required for the prototype.
+- Validation separates public employee codes from sensitive personal identifiers.
+
+## 6. Python GUI Wrapper for a CLI Tool
+
+UI contract:
+
+| Control | Behavior |
+| --- | --- |
+| Input file picker | Selects source dataset or project file |
+| Output directory picker | Chooses where results are written |
+| Parameter fields | Mirrors approved CLI flags |
+| Run button | Starts subprocess with captured stdout and stderr |
+| Status panel | Shows progress, final command, and errors |
+
+Execution model:
+
+```text
+GUI -> validate fields -> build CLI command -> run subprocess -> capture logs -> show result path
+```
+
+This keeps the original command-line tool testable while making routine runs easier for non-technical users.
+
+## 7. Zapier or Make Automation Blueprint
+
+Workflow shape:
+
+```text
+Form submission -> validate fields -> notify owner -> append to sheet/CRM -> retry or dead-letter failures
+```
+
+Handoff checklist:
+
+| Item | Example |
+| --- | --- |
+| Trigger | New form submission |
+| Required fields | name, email, request_type, message |
+| Destination | Google Sheet, Airtable, HubSpot, or CRM endpoint |
+| Error route | Email owner and add failed payload to review sheet |
+| Test cases | valid lead, missing email, duplicate submission, API timeout |
+
+The same contract works before account access is granted, so the first review can happen with screenshots or a dry-run payload.
+
+## 8. Docker Container for C++ and Python Teams
+
+Starter file layout:
+
+```text
+Dockerfile
+docker-compose.yml
+README.md
+scripts/smoke-test.sh
+src/
+data/
+outputs/
+```
+
+Base setup:
+
+| Layer | Contents |
+| --- | --- |
+| OS | Ubuntu LTS base image |
+| C++ | build-essential, cmake, ninja, gdb |
+| Python | pinned Python, venv, requirements.txt |
+| Runtime | mounted source/data/output volumes |
+| Verification | one smoke test that compiles and runs a tiny sample |
+
+The first container can be generic, then narrowed after compiler version, GPU needs, and team network assumptions are confirmed.
+
 ## Delivery Standard
 
 Each same-day workflow handoff should include:
