@@ -31,6 +31,7 @@ Commerce Scout Demo is a static Pyrimid integration bounty proof. It shows how a
 - Includes a same-day form spam and lead quality filter demo with scoring explanations, routing, and JSON handoff: [`demos/form-spam-filter/`](demos/form-spam-filter/).
 - Includes a same-day blog and social content generator demo with tone controls, editable drafts, review states, and export handoff: [`demos/content-generator/`](demos/content-generator/).
 - Includes a Superteam UK institutional tokenisation competitor analysis report: [`reports/institutional-tokenisation-report.html`](reports/institutional-tokenisation-report.html).
+- Includes a Superteam Bento beta feedback report with SDK/onboarding findings: [`reports/bento-beta-feedback-report.html`](reports/bento-beta-feedback-report.html).
 - Includes a small no-spam community placement note for bug-bounty resource links: [`resources/bug-bounty-community-placement.md`](resources/bug-bounty-community-placement.md).
 - Includes same-day workflow samples for document diffing, PII redaction, and outbound-email scoring: [`resources/fast-ai-workflow-samples.md`](resources/fast-ai-workflow-samples.md).
 - Includes a runnable starter pack for same-day AI/dev workflow tasks: [`resources/fast-workflow-starter-pack.md`](resources/fast-workflow-starter-pack.md).

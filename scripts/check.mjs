@@ -23,6 +23,7 @@ const readme = await read("README.md");
 const formSpamDemo = await read("demos/form-spam-filter/index.html");
 const contentGeneratorDemo = await read("demos/content-generator/index.html");
 const institutionalReport = await read("reports/institutional-tokenisation-report.html");
+const bentoReport = await read("reports/bento-beta-feedback-report.html");
 
 assert(app.includes("@pyrimid/sdk"), "app.js must import @pyrimid/sdk");
 assert(app.includes("PyrimidResolver"), "app.js must use PyrimidResolver");
@@ -34,6 +35,10 @@ assert(
   html.includes("reports/institutional-tokenisation-report.html"),
   "index.html must link to institutional tokenisation report"
 );
+assert(
+  html.includes("reports/bento-beta-feedback-report.html"),
+  "index.html must link to Bento beta feedback report"
+);
 assert(agent.pyrimid?.resolver === "PyrimidResolver", "agent profile must advertise PyrimidResolver");
 assert(x402.affiliateId === "af_commerce_scout_demo", "x402 profile affiliate ID mismatch");
 assert(Array.isArray(catalog.products) && catalog.products.length >= 5, "catalog snapshot must include products");
@@ -44,6 +49,10 @@ assert(readme.includes("demos/content-generator/"), "README must include content
 assert(
   readme.includes("reports/institutional-tokenisation-report.html"),
   "README must include institutional tokenisation report"
+);
+assert(
+  readme.includes("reports/bento-beta-feedback-report.html"),
+  "README must include Bento beta feedback report"
 );
 assert(formSpamDemo.includes("Form Spam Filter"), "form spam demo title missing");
 assert(formSpamDemo.includes("lead_score"), "form spam demo must export lead score");
@@ -63,6 +72,9 @@ assert(
 );
 assert(institutionalReport.includes("Solana"), "institutional report must discuss Solana");
 assert(institutionalReport.includes("Ethereum"), "institutional report must discuss Ethereum");
+assert(bentoReport.includes("Bento Beta Feedback Report"), "Bento report title missing");
+assert(bentoReport.includes("@bentoguard/sdk"), "Bento report must discuss SDK testing");
+assert(bentoReport.includes("early access form"), "Bento report must discuss early access form");
 assert(!app.includes("TODO"), "app.js contains TODO");
 assert(!readme.includes("TBD"), "README contains TBD");
 
