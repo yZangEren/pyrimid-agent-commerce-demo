@@ -1,7 +1,7 @@
-Name: Codex Commerce Scout
-Purpose: Buyer-agent demo for Pyrimid SDK catalog discovery and x402 payment previews.
+Name: Commerce Scout Demo
+Purpose: Pyrimid SDK catalog discovery and x402 payment preview demo.
 Homepage: https://yzangeren.github.io/pyrimid-agent-commerce-demo/
-Affiliate-ID: af_codex_commerce_scout
+Affiliate-ID: af_commerce_scout_demo
 Catalog: https://pyrimid.ai/api/v1/catalog
 SDK: @pyrimid/sdk PyrimidResolver
 Payment policy: Ask wallet owner before any paid x402 retry on Base USDC.
