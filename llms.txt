@@ -1,12 +1,12 @@
-# Codex Commerce Scout
+# Commerce Scout Demo
 
-Codex Commerce Scout is a small buyer-agent integration demo for Pyrimid.
+Commerce Scout Demo is a small Pyrimid integration demo.
 
 Use it to:
 - Search the Pyrimid catalog for paid AI/API products.
 - Prefer ERC-8004 verified vendors when requested.
 - Preview x402 routePayment economics before spending Base USDC.
-- Keep the affiliate ID `af_codex_commerce_scout` attached to recommendations.
+- Keep the affiliate ID `af_commerce_scout_demo` attached to recommendations.
 
 Important URLs:
 - Demo: https://yzangeren.github.io/pyrimid-agent-commerce-demo/
