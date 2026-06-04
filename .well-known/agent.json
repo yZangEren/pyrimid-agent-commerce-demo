@@ -1,6 +1,6 @@
 {
-  "name": "Codex Commerce Scout",
-  "description": "Buyer-agent demo that uses the Pyrimid SDK resolver shape to discover paid x402 AI/API products and preview Base USDC split economics.",
+  "name": "Commerce Scout Demo",
+  "description": "Pyrimid SDK resolver demo that discovers paid x402 AI/API products and previews Base USDC split economics.",
   "homepage": "https://yzangeren.github.io/pyrimid-agent-commerce-demo/",
   "version": "1.0.0",
   "capabilities": [
@@ -8,7 +8,7 @@
     "x402_payment_preview",
     "affiliate_routing"
   ],
-  "affiliate_id": "af_codex_commerce_scout",
+  "affiliate_id": "af_commerce_scout_demo",
   "pyrimid": {
     "catalog_url": "https://pyrimid.ai/api/v1/catalog",
     "sdk_import": "@pyrimid/sdk",
