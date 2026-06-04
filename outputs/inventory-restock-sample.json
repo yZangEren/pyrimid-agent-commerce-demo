@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-06-04T09:05:00Z",
+  "summary": {
+    "total_items": 6,
+    "ok": 3,
+    "low_stock": 2,
+    "critical": 1,
+    "restock_recommended": 3
+  },
+  "items": [
+    {
+      "sku": "HW-DRILL-18V",
+      "name": "18V Cordless Drill",
+      "category": "Power Tools",
+      "quantity_on_hand": 4,
+      "minimum_threshold": 5,
+      "reorder_quantity": 12,
+      "supplier": "Northline Tools",
+      "status": "low_stock",
+      "suggested_restock_quantity": 12,
+      "updated_by": "sample_staff"
+    },
+    {
+      "sku": "HW-SCREW-2IN",
+      "name": "2 inch wood screws - 100 pack",
+      "category": "Fasteners",
+      "quantity_on_hand": 2,
+      "minimum_threshold": 8,
+      "reorder_quantity": 30,
+      "supplier": "Bulk Fastener Co",
+      "status": "critical",
+      "suggested_restock_quantity": 30,
+      "updated_by": "sample_staff"
+    },
+    {
+      "sku": "HW-GLOVE-L",
+      "name": "Work gloves large",
+      "category": "Safety",
+      "quantity_on_hand": 7,
+      "minimum_threshold": 7,
+      "reorder_quantity": 18,
+      "supplier": "SafeGear",
+      "status": "low_stock",
+      "suggested_restock_quantity": 18,
+      "updated_by": "sample_staff"
+    }
+  ],
+  "notification_payload": {
+    "subject": "Inventory restock alert: 3 items need attention",
+    "priority": "high",
+    "channels": ["email", "dashboard"],
+    "message": "Critical: 2 inch wood screws - 100 pack. Low stock: 18V Cordless Drill, Work gloves large."
+  }
+}
