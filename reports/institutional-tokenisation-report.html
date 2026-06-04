@@ -1,0 +1,554 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Institutional L1 Competitor Analysis for Tokenisation</title>
+  <style>
+    body {
+      margin: 0;
+      color: #111827;
+      background: #ffffff;
+      font: 13.5px/1.55 Arial, Helvetica, sans-serif;
+    }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 42px 44px 60px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.15;
+      color: #0f172a;
+    }
+    h2 {
+      margin-top: 28px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 19px;
+      color: #111827;
+    }
+    h3 {
+      margin-top: 20px;
+      font-size: 15px;
+      color: #1f2937;
+    }
+    p, li {
+      color: #1f2937;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      page-break-inside: avoid;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 7px 8px;
+      vertical-align: top;
+    }
+    th {
+      background: #f3f4f6;
+      color: #111827;
+      text-align: left;
+    }
+    a {
+      color: #0f766e;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+    ul, ol {
+      padding-left: 22px;
+    }
+    @page {
+      size: A4;
+      margin: 14mm 13mm;
+    }
+  </style>
+</head>
+<body>
+  <main><h1>Institutional L1 Competitor Analysis for Tokenisation</h1>
+<p>Prepared for the Superteam UK bounty: &quot;Business Challenge: Institutional Competitor Analysis&quot;</p>
+<p>Date: 4 June 2026</p>
+<h2>Executive Summary</h2>
+<p>Institutional tokenisation is moving from proof-of-concept to production, but the buying criteria are different from most crypto-native infrastructure decisions. Banks, asset managers, transfer agents, custodians, and market makers care less about &quot;maximum decentralisation&quot; in the abstract and more about whether an on-chain asset can be issued, serviced, recovered, restricted, audited, and settled under real regulatory and operational constraints.</p>
+<p>The four most relevant L1-style competitors for institutional-grade tokenisation are Ethereum, Solana, Avalanche, and Stellar. They do not compete on the same axis:</p>
+<table>
+<thead>
+<tr>
+<th>Chain</th>
+<th>Best institutional fit</th>
+<th>Main advantage</th>
+<th>Main gap</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ethereum</td>
+<td>Liquid, broadly distributed tokenised funds and collateral</td>
+<td>Deepest RWA/stablecoin liquidity, mature standards, biggest institutional mindshare</td>
+<td>Base-layer cost and privacy constraints; production often needs L2s or permissioning overlays</td>
+</tr>
+<tr>
+<td>Solana</td>
+<td>High-velocity tokenised markets, payments-linked assets, internet-scale distribution</td>
+<td>Very low fees, high throughput, rich token extensions, strong consumer/stablecoin rails</td>
+<td>Fewer canonical institutional tokenisation templates and less proven regulated-asset AUM than Ethereum/Stellar</td>
+</tr>
+<tr>
+<td>Avalanche</td>
+<td>Permissioned institutional networks and consortium workflows</td>
+<td>Evergreen/Subnet model gives KYC/KYB, custom gas, EVM, and validator control</td>
+<td>Fragmented liquidity and operational complexity across custom chains</td>
+</tr>
+<tr>
+<td>Stellar</td>
+<td>Regulated funds, payments, and simple issuer-controlled assets</td>
+<td>Built-in issuer controls and live Franklin Templeton BENJI proof point</td>
+<td>Narrower general-purpose DeFi/composability and smaller developer surface than EVM/Solana</td>
+</tr>
+</tbody></table>
+<p>My recommendation: Ethereum remains the default institutional benchmark today. Avalanche is the strongest &quot;private-but-interoperable&quot; institutional network architecture. Stellar is the most proven purpose-built chain for simple regulated asset issuance. Solana is the most attractive challenger where cost, speed, retail-grade UX, stablecoin movement, and eventual always-on secondary market liquidity matter.</p>
+<p>For Solana to outperform in institutional tokenisation, it should not position itself only as &quot;faster Ethereum.&quot; The stronger position is: Solana is the public market infrastructure for high-frequency, low-cost, compliance-aware assets that need to move like internet money.</p>
+<h2>What Institutions Actually Need</h2>
+<p>Institutional tokenisation buyers usually rank requirements in this order:</p>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Legal ownership and transfer-agent mapping</td>
+<td>The token must map cleanly to a legal record of ownership, not just a bearer asset in a wallet.</td>
+</tr>
+<tr>
+<td>Compliance controls</td>
+<td>KYC, sanctions screening, jurisdictional restrictions, investor suitability, lockups, and transfer restrictions must be enforceable.</td>
+</tr>
+<tr>
+<td>Custody and recovery</td>
+<td>Institutions need qualified custody, key-loss processes, freeze/reissue mechanics, and operational controls.</td>
+</tr>
+<tr>
+<td>Settlement certainty</td>
+<td>Finality, uptime, predictable fees, and low reconciliation overhead matter more than theoretical TPS.</td>
+</tr>
+<tr>
+<td>Privacy and disclosure</td>
+<td>Institutions need selective confidentiality: regulators and issuers need visibility; competitors and the public should not see everything.</td>
+</tr>
+<tr>
+<td>Liquidity and distribution</td>
+<td>Tokenised assets are only useful if they can be used as collateral, traded, redeemed, or moved through existing market infrastructure.</td>
+</tr>
+<tr>
+<td>Interoperability</td>
+<td>Institutions dislike isolated ledgers. Assets must move between custodians, venues, and sometimes chains.</td>
+</tr>
+<tr>
+<td>Auditability and reporting</td>
+<td>Portfolio, NAV, proof-of-reserve, holder, and transaction reporting must be straightforward.</td>
+</tr>
+<tr>
+<td>Vendor maturity</td>
+<td>Asset managers buy complete operating stacks, not only protocols. Transfer agents, custodians, auditors, broker-dealers, and compliance vendors are part of the product.</td>
+</tr>
+</tbody></table>
+<h2>Ethereum</h2>
+<p>Ethereum is the institutional reference point because the largest public-chain tokenisation examples began there and because EVM tooling is the broadest ecosystem standard. BlackRock&#39;s BUIDL launched on Ethereum with Securitize as transfer agent and tokenisation platform. Ethereum also benefits from the most developed token standards and compliance patterns for regulated assets, including ERC-3643/T-REX for identity-aware transfers.</p>
+<h3>Strengths</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Institutional proof</td>
+<td>Very strong. BUIDL and many RWA/stablecoin deployments made Ethereum the default comparison set.</td>
+</tr>
+<tr>
+<td>Standards</td>
+<td>Strong. ERC-20 is universal, while ERC-3643 adds identity and compliance controls for regulated tokens.</td>
+</tr>
+<tr>
+<td>Liquidity</td>
+<td>Strongest among the four. DeFi, stablecoins, custody integrations, and market infrastructure cluster around Ethereum and its L2s.</td>
+</tr>
+<tr>
+<td>Vendor ecosystem</td>
+<td>Strong. Transfer agents, tokenisation platforms, custodians, analytics providers, and audit firms are mature.</td>
+</tr>
+<tr>
+<td>Composability</td>
+<td>Strong, but depends on whether regulated assets allow open composability.</td>
+</tr>
+</tbody></table>
+<h3>Weaknesses</h3>
+<table>
+<thead>
+<tr>
+<th>Weakness</th>
+<th>Implication</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Base-layer fees</td>
+<td>Many institutional use cases need L2s or private/permitted overlays for predictable cost.</td>
+</tr>
+<tr>
+<td>Public transparency</td>
+<td>Privacy requires additional architecture, which increases complexity.</td>
+</tr>
+<tr>
+<td>Fragmentation through L2s</td>
+<td>Liquidity and settlement can split across mainnet and many L2s.</td>
+</tr>
+<tr>
+<td>Compliance is not native to the chain</td>
+<td>Strong compliance is built at token/application/vendor level, not at Ethereum protocol level.</td>
+</tr>
+</tbody></table>
+<h3>Best use cases</h3>
+<p>Ethereum is best for institutional assets that benefit from maximum distribution, deep liquidity, and existing EVM standards: tokenised treasury funds, collateral assets, large stablecoins, and products intended to interact with DeFi or multiple custodians.</p>
+<h2>Solana</h2>
+<p>Solana&#39;s institutional tokenisation case is improving quickly. Its strongest advantages are low transaction cost, high throughput, fast user experience, and native token extensions that are relevant to regulated assets. Token Extensions can support features such as transfer hooks, confidential transfers, metadata, permanent delegates, and other controls that make tokens more institutionally expressive than a plain SPL token.</p>
+<p>Solana&#39;s challenge is not raw technology; it is packaging. Institutions need a complete compliance, custody, transfer-agent, reporting, and recovery workflow. Solana has the ingredients, but Ethereum and Stellar currently have clearer proof points for regulated fund issuance.</p>
+<h3>Strengths</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cost and speed</td>
+<td>Excellent. Solana is well suited for high-frequency or low-ticket tokenised assets where Ethereum base-layer fees are too expensive.</td>
+</tr>
+<tr>
+<td>User experience</td>
+<td>Strong. Fast confirmation and low fees make wallet, payments, and distribution flows feel closer to Web2.</td>
+</tr>
+<tr>
+<td>Token features</td>
+<td>Strong and underrated. Token Extensions support compliance-oriented design patterns such as transfer hooks and confidential transfers.</td>
+</tr>
+<tr>
+<td>Stablecoin and payment fit</td>
+<td>Strong. Solana is already a high-velocity stablecoin network, which matters because tokenised assets often need cash legs.</td>
+</tr>
+<tr>
+<td>Market structure upside</td>
+<td>High. Solana can support tokenised assets that trade or settle frequently, not only static fund shares.</td>
+</tr>
+</tbody></table>
+<h3>Weaknesses</h3>
+<table>
+<thead>
+<tr>
+<th>Weakness</th>
+<th>Implication</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fewer canonical regulated-asset templates</td>
+<td>Issuers may need more bespoke engineering and legal/compliance translation.</td>
+</tr>
+<tr>
+<td>Lower institutional mindshare than Ethereum</td>
+<td>Asset managers and banks often start with EVM because vendors and internal teams know it.</td>
+</tr>
+<tr>
+<td>Public-chain transparency</td>
+<td>Confidential transfers help, but selective disclosure and reporting workflows must be productised.</td>
+</tr>
+<tr>
+<td>Historical reliability concerns</td>
+<td>Even if network reliability has improved, institutions will ask for evidence, SLAs from vendors, and incident processes.</td>
+</tr>
+<tr>
+<td>Non-EVM environment</td>
+<td>Some institutions prefer EVM compatibility to reuse Solidity tooling and security review patterns.</td>
+</tr>
+</tbody></table>
+<h3>Best use cases</h3>
+<p>Solana is best for tokenised assets that require frequent movement, low-cost settlement, or consumer-scale distribution: stablecoin-linked funds, tokenised equities with active market making, loyalty or receivables products with many small holders, tokenised money-market collateral used in trading, and payment-native RWAs.</p>
+<h2>Avalanche</h2>
+<p>Avalanche&#39;s institutional pitch is not only the C-Chain. Its most differentiated product is the Evergreen/Subnet architecture: customizable networks for financial institutions with permissioned validators, embedded allow lists, KYC/KYB controls, custom gas tokens, and EVM compatibility. That makes Avalanche attractive for institutions that are not ready to put the full workflow on a public permissionless network.</p>
+<h3>Strengths</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Permissioning</td>
+<td>Excellent. Evergreen Subnets are designed around permissioned access and institutional controls.</td>
+</tr>
+<tr>
+<td>Customization</td>
+<td>Excellent. Institutions can tune validator sets, VM, gas token, compliance rules, and data access.</td>
+</tr>
+<tr>
+<td>EVM compatibility</td>
+<td>Strong. Existing Ethereum tooling can be reused.</td>
+</tr>
+<tr>
+<td>Privacy and consortium fit</td>
+<td>Strong. Custom networks can protect sensitive workflows while preserving some interoperability.</td>
+</tr>
+<tr>
+<td>Pilot-to-production path</td>
+<td>Strong for banks and asset managers that need a controlled environment first.</td>
+</tr>
+</tbody></table>
+<h3>Weaknesses</h3>
+<table>
+<thead>
+<tr>
+<th>Weakness</th>
+<th>Implication</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Liquidity fragmentation</td>
+<td>Assets on custom subnets may not inherit broad public-market liquidity.</td>
+</tr>
+<tr>
+<td>Operational complexity</td>
+<td>Running or governing a subnet is heavier than issuing a token on an existing public chain.</td>
+</tr>
+<tr>
+<td>Security model variability</td>
+<td>Each custom chain&#39;s validator and governance choices matter. Institutions must diligence them.</td>
+</tr>
+<tr>
+<td>Distribution challenge</td>
+<td>A permissioned institutional subnet can become a high-quality silo if interoperability is not carefully designed.</td>
+</tr>
+</tbody></table>
+<h3>Best use cases</h3>
+<p>Avalanche is best for bank consortiums, private credit, structured products, tokenised funds with restricted counterparties, and workflows where compliance and data control are more important than open composability.</p>
+<h2>Stellar</h2>
+<p>Stellar is the least &quot;general smart-contract platform first&quot; of the group, but that is part of its strength. It has long focused on payments, asset issuance, and issuer controls. Franklin Templeton&#39;s BENJI is the standout proof point: a U.S.-registered tokenised money-market fund with years of production history, plus expansion of the Benji platform into Luxembourg UCITS and Singapore retail tokenised fund use cases.</p>
+<h3>Strengths</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Regulated asset proof</td>
+<td>Very strong. BENJI gives Stellar one of the clearest real-world tokenised fund case studies.</td>
+</tr>
+<tr>
+<td>Issuer controls</td>
+<td>Strong. Stellar assets have built-in issuer/distribution account patterns and authorization controls.</td>
+</tr>
+<tr>
+<td>Payments fit</td>
+<td>Strong. Stellar is optimized for low-cost asset movement and payment corridors.</td>
+</tr>
+<tr>
+<td>Simplicity</td>
+<td>Strong. For straightforward asset issuance, Stellar can be easier to reason about than a fully general VM ecosystem.</td>
+</tr>
+<tr>
+<td>Compliance posture</td>
+<td>Strong for asset issuers who want allowlists, authorization, and controlled asset access.</td>
+</tr>
+</tbody></table>
+<h3>Weaknesses</h3>
+<table>
+<thead>
+<tr>
+<th>Weakness</th>
+<th>Implication</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Smaller DeFi ecosystem</td>
+<td>Less useful for assets that need broad composability or collateral use across many venues.</td>
+</tr>
+<tr>
+<td>Lower developer mindshare than EVM/Solana</td>
+<td>Fewer teams can immediately build complex tokenisation workflows.</td>
+</tr>
+<tr>
+<td>Narrower institutional narrative</td>
+<td>Strong in funds/payments, less broad in high-frequency market structure or app-specific chains.</td>
+</tr>
+</tbody></table>
+<h3>Best use cases</h3>
+<p>Stellar is best for regulated payment assets, money-market funds, cross-border settlement assets, and issuer-controlled tokenised securities where simplicity and compliance controls matter more than open DeFi composability.</p>
+<h2>Comparison Matrix</h2>
+<p>Scores are relative, from 1 (weak) to 5 (strong), and reflect institutional tokenisation rather than overall chain quality.</p>
+<table>
+<thead>
+<tr>
+<th>Criteria</th>
+<th align="right">Ethereum</th>
+<th align="right">Solana</th>
+<th align="right">Avalanche</th>
+<th align="right">Stellar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Institutional adoption proof</td>
+<td align="right">5</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td>Liquidity and distribution</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td>Cost and throughput</td>
+<td align="right">2</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td>Compliance controls</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td>Privacy/control options</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td>Developer/vendor maturity</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td>Public composability</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td>Custom institutional environments</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td>Simplicity for regulated issuance</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">5</td>
+</tr>
+</tbody></table>
+<h2>Where Competitors Outperform Solana</h2>
+<p>Ethereum outperforms Solana in institutional trust and distribution. A compliance officer or asset-management CTO is more likely to have seen Ethereum token standards, EVM audits, custody support, and BUIDL-style case studies. The main blocker is not whether Solana can technically support tokenisation; it is whether a buyer can procure a complete, familiar operating model.</p>
+<p>Avalanche outperforms Solana for permissioned institutional networks. If a bank wants a closed environment with known validators, KYC/KYB gates, and custom rules from day one, Evergreen is easier to explain than a public Solana deployment plus custom controls.</p>
+<p>Stellar outperforms Solana in simple regulated asset issuance proof. Franklin Templeton&#39;s BENJI story is easy to understand: a regulated asset manager used Stellar for a live tokenised fund over multiple years. Solana needs more of these boring-but-important case studies.</p>
+<h2>Where Solana Can Win</h2>
+<p>Solana can win where tokenised assets need to be active, not passive.</p>
+<p>Examples:</p>
+<ol>
+<li>Tokenised cash-like funds used as collateral in trading systems.</li>
+<li>Tokenised equities or fund units with frequent transfers and market-maker activity.</li>
+<li>High-volume stablecoin settlement tied to tokenised assets.</li>
+<li>Consumer-facing tokenised products with many small holders.</li>
+<li>Tokenised invoices, receivables, rewards, or loyalty balances where fee sensitivity is high.</li>
+<li>Hybrid products where Web2 apps hide most wallet complexity but settle on public infrastructure.</li>
+</ol>
+<p>This is an institutional niche that still looks under-owned: not &quot;private chain for banks&quot; and not &quot;expensive settlement layer for large tickets,&quot; but public internet capital markets with compliance-aware controls.</p>
+<h2>Recommendations for Solana</h2>
+<h3>1. Productise a regulated-token reference stack</h3>
+<p>Solana should package a reference implementation for regulated tokenised funds and securities:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Needed capability</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Identity registry</td>
+<td>Whitelisted holders, jurisdiction data, accredited/qualified investor status.</td>
+</tr>
+<tr>
+<td>Transfer hook</td>
+<td>Pre-transfer compliance checks, lockups, concentration limits, sanctions screening callbacks.</td>
+</tr>
+<tr>
+<td>Confidential transfer</td>
+<td>Selective privacy for balances and flows.</td>
+</tr>
+<tr>
+<td>Issuer controls</td>
+<td>Pause, freeze, forced transfer, redemption, burn/reissue, lost-key handling.</td>
+</tr>
+<tr>
+<td>Reporting</td>
+<td>Holder reports, transfer logs, NAV integrations, proof-of-reserve/NAV attestations.</td>
+</tr>
+<tr>
+<td>Custody integration</td>
+<td>Clear patterns for Fireblocks, Coinbase, Anchorage, BitGo, and institutional wallet policies.</td>
+</tr>
+</tbody></table>
+<h3>2. Make compliance legible to non-crypto buyers</h3>
+<p>Solana&#39;s token extensions are powerful, but the institutional buyer needs diagrams, legal mappings, audit reports, and vendor checklists. The winning artifact is not only SDK documentation; it is a &quot;fund-in-a-box&quot; operating model.</p>
+<h3>3. Build public case studies with regulated issuers</h3>
+<p>Solana needs more plain-language examples like:</p>
+<ul>
+<li>A regulated money-market fund issued on Solana.</li>
+<li>A transfer-agent workflow with recovery and reporting.</li>
+<li>A tokenised equity or bond pilot with named market makers and custody.</li>
+<li>A stablecoin cash leg paired with tokenised fund units.</li>
+</ul>
+<h3>4. Embrace hybrid privacy</h3>
+<p>Institutions do not need total privacy from regulators or issuers. They need selective disclosure. Solana should position confidential transfers plus controlled reporting as a better default than either full public transparency or fully private ledgers.</p>
+<h3>5. Compete on operational cost, not only TPS</h3>
+<p>The strongest Solana argument is not just fast blocks. It is lower all-in operating cost for issuance, transfers, redemptions, corporate actions, market making, and reconciliation.</p>
+<h2>Final View</h2>
+<p>No single L1 is best for every institutional tokenisation use case.</p>
+<p>Ethereum is the safest default for liquid, broadly distributed institutional assets. Avalanche is the strongest option for permissioned institutional networks. Stellar is the cleanest proof point for simple regulated asset issuance and payments. Solana is the most compelling challenger for high-volume, low-cost, public-market tokenisation, especially when assets need to move often and interact with stablecoin liquidity.</p>
+<p>For Solana, the opportunity is not to copy Ethereum&#39;s institutional path. It should own a sharper category: compliance-aware assets that can move at internet speed.</p>
+<h2>Sources</h2>
+<ul>
+<li>BlackRock and Securitize announced BUIDL on Ethereum: <a href="https://www.businesswire.com/news/home/20240320771318/en/BlackRock-Launches-Its-First-Tokenized-Fund-BUIDL-on-the-Ethereum-Network">https://www.businesswire.com/news/home/20240320771318/en/BlackRock-Launches-Its-First-Tokenized-Fund-BUIDL-on-the-Ethereum-Network</a></li>
+<li>Ethereum for Institutions, RWAs and stablecoins overview: <a href="https://institutions.ethereum.org/rwa">https://institutions.ethereum.org/rwa</a></li>
+<li>ERC-3643 / T-REX regulated token standard: <a href="https://eips.ethereum.org/EIPS/eip-3643">https://eips.ethereum.org/EIPS/eip-3643</a> and <a href="https://www.erc3643.org/">https://www.erc3643.org/</a></li>
+<li>Solana tokenisation overview: <a href="https://solana.com/solutions/tokenization">https://solana.com/solutions/tokenization</a></li>
+<li>Solana Token Extensions documentation: <a href="https://dev-solana.com/docs/token-extensions">https://dev-solana.com/docs/token-extensions</a></li>
+<li>Solana confidential balances documentation: <a href="https://www.solana-program.com/docs/confidential-balances">https://www.solana-program.com/docs/confidential-balances</a></li>
+<li>Stellar and Franklin Templeton BENJI five-year announcement: <a href="https://stellar.org/press/franklin-templeton-stellar-development-foundation-mark-five-years-of-benji-the-first-u-s-registered-tokenized-money-market-fund">https://stellar.org/press/franklin-templeton-stellar-development-foundation-mark-five-years-of-benji-the-first-u-s-registered-tokenized-money-market-fund</a></li>
+<li>Stellar asset controls and regulated asset design: <a href="https://developers.stellar.org/docs/tokens/control-asset-access">https://developers.stellar.org/docs/tokens/control-asset-access</a></li>
+<li>Stellar asset token models and SEP-57/ERC-3643 discussion: <a href="https://developers.stellar.org/docs/tokens/anatomy-of-an-asset">https://developers.stellar.org/docs/tokens/anatomy-of-an-asset</a></li>
+<li>Avalanche Evergreen overview: <a href="https://kr.avax.network/evergreen">https://kr.avax.network/evergreen</a></li>
+<li>Avalanche Evergreen launch coverage and institutional feature summary: <a href="https://cointelegraph.com/news/avalanche-introduces-evergreen-subnets-to-connect-institutions-on-blockchain">https://cointelegraph.com/news/avalanche-introduces-evergreen-subnets-to-connect-institutions-on-blockchain</a></li>
+<li>J.P. Morgan, Apollo, and WisdomTree portfolio management/tokenisation paper: <a href="https://www.jpmorgan.com/onyx/documents/portfolio-management-powered-by-tokenization.pdf">https://www.jpmorgan.com/onyx/documents/portfolio-management-powered-by-tokenization.pdf</a></li>
+</ul>
+</main>
+</body>
+</html>

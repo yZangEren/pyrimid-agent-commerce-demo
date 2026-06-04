@@ -22,6 +22,7 @@ const catalog = JSON.parse(await read("catalog-snapshot.json"));
 const readme = await read("README.md");
 const formSpamDemo = await read("demos/form-spam-filter/index.html");
 const contentGeneratorDemo = await read("demos/content-generator/index.html");
+const institutionalReport = await read("reports/institutional-tokenisation-report.html");
 
 assert(app.includes("@pyrimid/sdk"), "app.js must import @pyrimid/sdk");
 assert(app.includes("PyrimidResolver"), "app.js must use PyrimidResolver");
@@ -29,6 +30,10 @@ assert(app.includes("af_commerce_scout_demo"), "affiliate ID missing from app.js
 assert(html.includes("src/app.js"), "index.html must load the app module");
 assert(html.includes("demos/form-spam-filter/"), "index.html must link to form spam filter demo");
 assert(html.includes("demos/content-generator/"), "index.html must link to content generator demo");
+assert(
+  html.includes("reports/institutional-tokenisation-report.html"),
+  "index.html must link to institutional tokenisation report"
+);
 assert(agent.pyrimid?.resolver === "PyrimidResolver", "agent profile must advertise PyrimidResolver");
 assert(x402.affiliateId === "af_commerce_scout_demo", "x402 profile affiliate ID mismatch");
 assert(Array.isArray(catalog.products) && catalog.products.length >= 5, "catalog snapshot must include products");
@@ -36,6 +41,10 @@ assert(Number(catalog.total || catalog.products.length) >= catalog.products.leng
 assert(readme.includes("MYA job #20"), "README must identify bounty target");
 assert(readme.includes("demos/form-spam-filter/"), "README must include form spam filter demo");
 assert(readme.includes("demos/content-generator/"), "README must include content generator demo");
+assert(
+  readme.includes("reports/institutional-tokenisation-report.html"),
+  "README must include institutional tokenisation report"
+);
 assert(formSpamDemo.includes("Form Spam Filter"), "form spam demo title missing");
 assert(formSpamDemo.includes("lead_score"), "form spam demo must export lead score");
 assert(
@@ -48,6 +57,12 @@ assert(contentGeneratorDemo.includes("Content Generator"), "content generator de
 assert(contentGeneratorDemo.includes("tone controls"), "content generator demo must include tone controls");
 assert(contentGeneratorDemo.includes("review_state"), "content generator demo must export review state");
 assert(contentGeneratorDemo.includes("Markdown"), "content generator demo must include markdown export");
+assert(
+  institutionalReport.includes("Institutional L1 Competitor Analysis"),
+  "institutional report title missing"
+);
+assert(institutionalReport.includes("Solana"), "institutional report must discuss Solana");
+assert(institutionalReport.includes("Ethereum"), "institutional report must discuss Ethereum");
 assert(!app.includes("TODO"), "app.js contains TODO");
 assert(!readme.includes("TBD"), "README contains TBD");
 
