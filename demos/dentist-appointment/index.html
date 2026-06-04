@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Brightline Dental Appointment Demo</title>
+    <style>
+      :root {
+        --ink: #17202a;
+        --muted: #5e6975;
+        --line: #d7dee7;
+        --soft: #f5f8fb;
+        --panel: #ffffff;
+        --teal: #157a78;
+        --teal-dark: #0d5554;
+        --coral: #c7553f;
+        --gold: #a66f16;
+        --blue: #2b63a0;
+        --shadow: 0 18px 50px rgba(30, 45, 70, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--soft);
+        line-height: 1.5;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        min-height: 100vh;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.94);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(14px);
+      }
+
+      .nav {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 190px;
+      }
+
+      .mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: var(--teal);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-weight: 800;
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 15px;
+        letter-spacing: 0;
+      }
+
+      .brand span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .nav-links a {
+        text-decoration: none;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .icon-button,
+      .button {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+        border-radius: 8px;
+        height: 40px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .icon-button {
+        width: 40px;
+        padding: 0;
+      }
+
+      .button.primary {
+        border-color: var(--teal);
+        background: var(--teal);
+        color: white;
+      }
+
+      .button.primary:hover {
+        background: var(--teal-dark);
+      }
+
+      .hero {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 34px 20px 18px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.03fr) minmax(360px, 0.97fr);
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .hero-copy {
+        padding: 24px 0 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .eyebrow {
+        color: var(--teal);
+        font-weight: 800;
+        font-size: 13px;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        font-size: clamp(34px, 6vw, 68px);
+        line-height: 0.98;
+        letter-spacing: 0;
+        margin: 12px 0 16px;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: 18px;
+        max-width: 620px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+      }
+
+      .proof-strip {
+        margin-top: 26px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .proof {
+        border-left: 3px solid var(--teal);
+        background: white;
+        padding: 12px 14px;
+      }
+
+      .proof strong {
+        display: block;
+        font-size: 18px;
+      }
+
+      .proof span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .visual {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        min-height: 430px;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 210px 1fr;
+      }
+
+      .clinic-art {
+        position: relative;
+        background:
+          radial-gradient(circle at 18% 26%, rgba(199, 85, 63, 0.22), transparent 24%),
+          linear-gradient(135deg, #e6f2f0 0%, #f8efe8 53%, #eef4fb 100%);
+        overflow: hidden;
+      }
+
+      .chair {
+        position: absolute;
+        left: 9%;
+        bottom: 20px;
+        width: 42%;
+        height: 94px;
+        border-radius: 60px 60px 22px 22px;
+        background: var(--teal);
+        transform: skewX(-9deg);
+      }
+
+      .chair::before {
+        content: "";
+        position: absolute;
+        right: -28px;
+        top: 42px;
+        width: 110px;
+        height: 18px;
+        background: var(--teal-dark);
+        border-radius: 14px;
+      }
+
+      .lamp {
+        position: absolute;
+        right: 14%;
+        top: 35px;
+        width: 150px;
+        height: 112px;
+        border-top: 9px solid var(--blue);
+        border-right: 9px solid var(--blue);
+        border-radius: 0 70px 0 0;
+      }
+
+      .lamp::after {
+        content: "";
+        position: absolute;
+        right: -26px;
+        bottom: -12px;
+        width: 76px;
+        height: 28px;
+        background: var(--gold);
+        border-radius: 30px;
+      }
+
+      .tooth-card {
+        position: absolute;
+        right: 10%;
+        bottom: 26px;
+        width: 132px;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(255, 255, 255, 0.94);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .tooth-shape {
+        width: 42px;
+        height: 52px;
+        background: white;
+        border: 3px solid var(--teal);
+        border-radius: 50% 50% 42% 42%;
+        margin-bottom: 8px;
+      }
+
+      .visual-body {
+        padding: 18px;
+      }
+
+      .today-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .today-row strong {
+        font-size: 18px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        color: var(--teal-dark);
+        background: #eef8f7;
+        font-weight: 700;
+      }
+
+      .mini-schedule {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .mini-slot {
+        display: grid;
+        grid-template-columns: 74px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .mini-slot strong {
+        color: var(--ink);
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--teal);
+      }
+
+      .dot.coral {
+        background: var(--coral);
+      }
+
+      .dot.gold {
+        background: var(--gold);
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 18px 20px 46px;
+      }
+
+      .section {
+        margin-top: 34px;
+      }
+
+      .section h2 {
+        font-size: 28px;
+        margin: 0 0 8px;
+      }
+
+      .section-intro {
+        color: var(--muted);
+        margin: 0 0 18px;
+        max-width: 720px;
+      }
+
+      .service-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .service {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .service svg {
+        width: 34px;
+        height: 34px;
+        color: var(--teal);
+      }
+
+      .service h3 {
+        margin: 12px 0 7px;
+        font-size: 17px;
+      }
+
+      .service p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 0.75fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      form,
+      .admin {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        min-height: 44px;
+        padding: 10px 12px;
+      }
+
+      textarea {
+        min-height: 94px;
+        resize: vertical;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      .form-footer {
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 14px;
+        min-height: 20px;
+      }
+
+      .tabs {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .tabs button {
+        border: 0;
+        background: white;
+        color: var(--muted);
+        padding: 9px 12px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .tabs button.active {
+        background: var(--teal);
+        color: white;
+      }
+
+      .admin-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .admin-head h3 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .request-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .empty {
+        color: var(--muted);
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        text-align: center;
+      }
+
+      .request {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 13px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .request-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .request-top strong {
+        word-break: break-word;
+      }
+
+      .request-meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .pill {
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 12px;
+        font-weight: 800;
+        height: fit-content;
+        color: var(--teal-dark);
+        background: #eaf7f6;
+      }
+
+      .pill.confirmed {
+        color: #19633f;
+        background: #e7f5ec;
+      }
+
+      .pill.declined {
+        color: #8a3428;
+        background: #faeae6;
+      }
+
+      .request-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .request-actions button,
+      .small-button {
+        border: 1px solid var(--line);
+        background: white;
+        border-radius: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .handoff {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .handoff article {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .handoff h3 {
+        margin: 0 0 7px;
+        font-size: 17px;
+      }
+
+      .handoff p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      footer {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 20px;
+        color: var(--muted);
+        font-size: 13px;
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 920px) {
+        .hero,
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .visual {
+          min-height: 360px;
+        }
+
+        .service-grid,
+        .handoff {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .nav-links {
+          display: none;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .nav {
+          align-items: flex-start;
+        }
+
+        .nav-actions {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
+        .hero {
+          padding-top: 18px;
+        }
+
+        .proof-strip,
+        .service-grid,
+        .form-grid,
+        .handoff {
+          grid-template-columns: 1fr;
+        }
+
+        .mini-slot {
+          grid-template-columns: 64px 1fr;
+        }
+
+        .mini-slot .dot {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <nav class="nav" aria-label="Primary">
+          <a class="brand" href="#top">
+            <span class="mark">BD</span>
+            <span>
+              <strong>Brightline Dental</strong>
+              <span>Appointment request demo</span>
+            </span>
+          </a>
+          <div class="nav-links">
+            <a href="#services">Services</a>
+            <a href="#book">Book</a>
+            <a href="#admin">Admin</a>
+            <a href="#handoff">Handoff</a>
+          </div>
+          <div class="nav-actions">
+            <a class="icon-button" href="tel:+15550171042" title="Call clinic" aria-label="Call clinic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M22 16.9v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.18 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.72c.12.91.33 1.8.62 2.65a2 2 0 0 1-.45 2.11L8 9.76a16 16 0 0 0 6.24 6.24l1.28-1.27a2 2 0 0 1 2.11-.45c.85.29 1.74.5 2.65.62A2 2 0 0 1 22 16.9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a class="button primary" href="#book">Request visit</a>
+          </div>
+        </nav>
+      </header>
+
+      <section id="top" class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Same-day clinic site slice</div>
+          <h1>Brightline Dental</h1>
+          <p class="lead">
+            A compact dental website with a patient appointment request flow, validation, saved submissions,
+            and a staff review panel. Built to swap placeholder clinic copy for real office details quickly.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#book">Open request form</a>
+            <a class="button" href="#admin">Review requests</a>
+          </div>
+          <div class="proof-strip" aria-label="Clinic proof points">
+            <div class="proof"><strong>4</strong><span>core service pages covered</span></div>
+            <div class="proof"><strong>Local</strong><span>saved request workflow</span></div>
+            <div class="proof"><strong>JSON</strong><span>handoff export included</span></div>
+          </div>
+        </div>
+
+        <aside class="visual" aria-label="Dental clinic schedule preview">
+          <div class="clinic-art">
+            <div class="chair"></div>
+            <div class="lamp"></div>
+            <div class="tooth-card">
+              <div class="tooth-shape"></div>
+              <strong>New patient</strong>
+            </div>
+          </div>
+          <div class="visual-body">
+            <div class="today-row">
+              <strong>Today at a glance</strong>
+              <span class="chip">3 open slots</span>
+            </div>
+            <div class="mini-schedule">
+              <div class="mini-slot"><strong>09:30</strong><span>Cleaning follow-up</span><span class="dot"></span></div>
+              <div class="mini-slot"><strong>11:00</strong><span>New patient consult</span><span class="dot coral"></span></div>
+              <div class="mini-slot"><strong>14:15</strong><span>Emergency review hold</span><span class="dot gold"></span></div>
+              <div class="mini-slot"><strong>16:00</strong><span>Open appointment window</span><span class="dot"></span></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <main>
+        <section id="services" class="section">
+          <h2>Services</h2>
+          <p class="section-intro">
+            Placeholder content is intentionally clinic-safe and easy to replace with the real practice name,
+            operating hours, service list, insurance copy, and staff details.
+          </p>
+          <div class="service-grid">
+            <article class="service">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 3c2 0 2.7 1 5 1s3-1 5-1c2.4 0 4 2 4 4.6 0 4.8-3.5 13.4-6.1 13.4-1.4 0-1.1-4.5-2.9-4.5s-1.5 4.5-2.9 4.5C6.5 21 3 12.4 3 7.6 3 5 4.6 3 7 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+              <h3>Preventive care</h3>
+              <p>Routine exams, cleanings, fluoride, and recall scheduling.</p>
+            </article>
+            <article class="service">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 14c4.5-7.5 11.5-7.5 16 0M6 17c3.5-4 8.5-4 12 0M10 20h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <h3>Cosmetic consults</h3>
+              <p>Whitening, bonding, veneers, and treatment planning.</p>
+            </article>
+            <article class="service">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 21s7-4.2 7-10V5l-7-3-7 3v6c0 5.8 7 10 7 10Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M9 12l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h3>Emergency triage</h3>
+              <p>Tooth pain, chipped teeth, swelling, and urgent reviews.</p>
+            </article>
+            <article class="service">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M7 3v4M17 3v4M6 11h4v4H6zM14 11h4v4h-4zM5 21h14a2 2 0 0 0 2-2V7H3v12a2 2 0 0 0 2 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+              <h3>Appointment requests</h3>
+              <p>Patients send preferred dates, concerns, and contact details.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="book" class="section">
+          <h2>Request An Appointment</h2>
+          <p class="section-intro">
+            The form validates required details and stores requests in the browser so the staff panel can be tested
+            without a database.
+          </p>
+          <div class="workspace">
+            <form id="appointmentForm">
+              <div class="form-grid">
+                <label>
+                  Patient name
+                  <input id="name" name="name" autocomplete="name" required placeholder="Alex Morgan" />
+                </label>
+                <label>
+                  Phone
+                  <input id="phone" name="phone" inputmode="tel" required placeholder="(555) 017-1042" />
+                </label>
+                <label>
+                  Email
+                  <input id="email" name="email" type="email" required placeholder="alex@example.com" />
+                </label>
+                <label>
+                  Visit type
+                  <select id="visitType" name="visitType" required>
+                    <option value="">Choose a visit</option>
+                    <option>New patient exam</option>
+                    <option>Cleaning</option>
+                    <option>Cosmetic consult</option>
+                    <option>Emergency triage</option>
+                  </select>
+                </label>
+                <label>
+                  Preferred date
+                  <input id="date" name="date" type="date" required />
+                </label>
+                <label>
+                  Preferred time
+                  <select id="time" name="time" required>
+                    <option value="">Choose a window</option>
+                    <option>Morning, 8:00-11:30</option>
+                    <option>Midday, 11:30-14:30</option>
+                    <option>Afternoon, 14:30-17:30</option>
+                  </select>
+                </label>
+                <label class="wide">
+                  Notes
+                  <textarea id="notes" name="notes" placeholder="Tell us what you need help with."></textarea>
+                </label>
+              </div>
+              <div class="form-footer">
+                <span id="formStatus" class="status" role="status"></span>
+                <button class="button primary" type="submit">Submit request</button>
+              </div>
+            </form>
+
+            <aside id="admin" class="admin">
+              <div class="admin-head">
+                <h3>Staff Panel</h3>
+                <div class="tabs" aria-label="Request filter">
+                  <button type="button" class="active" data-filter="all">All</button>
+                  <button type="button" data-filter="new">New</button>
+                  <button type="button" data-filter="confirmed">Confirmed</button>
+                </div>
+              </div>
+              <div id="requestList" class="request-list"></div>
+              <div class="form-footer">
+                <button id="seedDemo" class="small-button" type="button">Add sample</button>
+                <button id="exportJson" class="small-button" type="button">Export JSON</button>
+                <button id="clearRequests" class="small-button" type="button">Clear</button>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="handoff" class="section">
+          <h2>Implementation Handoff</h2>
+          <p class="section-intro">
+            This slice is scoped for fast review first. The next implementation step would connect the same
+            request schema to the clinic's preferred email, database, or scheduling tool.
+          </p>
+          <div class="handoff">
+            <article>
+              <h3>Data contract</h3>
+              <p>Each request has patient contact, visit type, preferred window, notes, status, and timestamp.</p>
+            </article>
+            <article>
+              <h3>Admin workflow</h3>
+              <p>Staff can filter, confirm, decline, export, and clear local test records.</p>
+            </article>
+            <article>
+              <h3>Next wiring</h3>
+              <p>Swap local storage for Supabase, Airtable, Google Sheets, email, or an existing scheduler.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        Demo only. No protected health information should be entered here until the storage, consent, and privacy
+        workflow are configured for the real clinic.
+      </footer>
+    </div>
+
+    <script>
+      const storageKey = "brightline_dental_requests_v1";
+      const form = document.querySelector("#appointmentForm");
+      const requestList = document.querySelector("#requestList");
+      const formStatus = document.querySelector("#formStatus");
+      const filterButtons = [...document.querySelectorAll("[data-filter]")];
+      let filter = "all";
+
+      function loadRequests() {
+        try {
+          return JSON.parse(localStorage.getItem(storageKey) || "[]");
+        } catch {
+          return [];
+        }
+      }
+
+      function saveRequests(requests) {
+        localStorage.setItem(storageKey, JSON.stringify(requests, null, 2));
+      }
+
+      function clean(value) {
+        return String(value || "").trim();
+      }
+
+      function createRequest(data) {
+        return {
+          id: `req_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+          name: clean(data.get("name")),
+          phone: clean(data.get("phone")),
+          email: clean(data.get("email")),
+          visitType: clean(data.get("visitType")),
+          date: clean(data.get("date")),
+          time: clean(data.get("time")),
+          notes: clean(data.get("notes")),
+          status: "new",
+          createdAt: new Date().toISOString(),
+        };
+      }
+
+      function validateRequest(request) {
+        if (!request.name || !request.phone || !request.email || !request.visitType || !request.date || !request.time) {
+          return "Please complete the required fields.";
+        }
+        if (!request.email.includes("@") || !request.email.includes(".")) {
+          return "Please enter a valid email address.";
+        }
+        return "";
+      }
+
+      function statusLabel(status) {
+        return status === "confirmed" ? "Confirmed" : status === "declined" ? "Declined" : "New";
+      }
+
+      function renderRequests() {
+        const requests = loadRequests();
+        const visible = requests.filter((request) => filter === "all" || request.status === filter);
+
+        if (visible.length === 0) {
+          requestList.innerHTML = '<div class="empty">No appointment requests in this view.</div>';
+          return;
+        }
+
+        requestList.innerHTML = visible
+          .map(
+            (request) => `
+            <article class="request">
+              <div class="request-top">
+                <strong>${escapeHtml(request.name)}</strong>
+                <span class="pill ${request.status}">${statusLabel(request.status)}</span>
+              </div>
+              <div class="request-meta">
+                ${escapeHtml(request.visitType)}<br />
+                ${escapeHtml(request.date)} - ${escapeHtml(request.time)}<br />
+                ${escapeHtml(request.phone)} - ${escapeHtml(request.email)}
+              </div>
+              ${request.notes ? `<div>${escapeHtml(request.notes)}</div>` : ""}
+              <div class="request-actions">
+                <button type="button" data-action="confirmed" data-id="${request.id}">Confirm</button>
+                <button type="button" data-action="declined" data-id="${request.id}">Decline</button>
+                <button type="button" data-action="new" data-id="${request.id}">Reopen</button>
+              </div>
+            </article>`
+          )
+          .join("");
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const request = createRequest(new FormData(form));
+        const error = validateRequest(request);
+        if (error) {
+          formStatus.textContent = error;
+          return;
+        }
+        const requests = loadRequests();
+        requests.unshift(request);
+        saveRequests(requests);
+        form.reset();
+        formStatus.textContent = "Request saved. Staff can review it now.";
+        renderRequests();
+      });
+
+      requestList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const requests = loadRequests().map((request) =>
+          request.id === button.dataset.id ? { ...request, status: button.dataset.action } : request
+        );
+        saveRequests(requests);
+        renderRequests();
+      });
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          filter = button.dataset.filter;
+          filterButtons.forEach((item) => item.classList.toggle("active", item === button));
+          renderRequests();
+        });
+      });
+
+      document.querySelector("#seedDemo").addEventListener("click", () => {
+        const requests = loadRequests();
+        requests.unshift({
+          id: `req_${Date.now()}_sample`,
+          name: "Jamie Lee",
+          phone: "(555) 018-2210",
+          email: "jamie@example.com",
+          visitType: "Emergency triage",
+          date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+          time: "Morning, 8:00-11:30",
+          notes: "Chipped molar, prefers earliest available visit.",
+          status: "new",
+          createdAt: new Date().toISOString(),
+        });
+        saveRequests(requests);
+        renderRequests();
+      });
+
+      document.querySelector("#exportJson").addEventListener("click", async () => {
+        const text = JSON.stringify(loadRequests(), null, 2);
+        await navigator.clipboard.writeText(text).catch(() => {});
+        formStatus.textContent = "Appointment JSON copied to clipboard.";
+      });
+
+      document.querySelector("#clearRequests").addEventListener("click", () => {
+        saveRequests([]);
+        renderRequests();
+      });
+
+      const dateInput = document.querySelector("#date");
+      dateInput.min = new Date().toISOString().slice(0, 10);
+      renderRequests();
+    </script>
+  </body>
+</html>

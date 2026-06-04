@@ -24,6 +24,7 @@ Commerce Scout Demo is a static Pyrimid integration bounty proof. It shows how a
 - Reads Pyrimid catalog data from the live API with a local snapshot fallback.
 - Provides `/.well-known/agent.json`, `/.well-known/x402.json`, `agents.txt`, and `llms.txt` so agents and reviewers can inspect the integration.
 - Includes a practical guide: [`guides/sell-paid-mcp-tool-with-x402-pyrimid.md`](guides/sell-paid-mcp-tool-with-x402-pyrimid.md).
+- Includes a same-day dentist website and appointment request demo: [`demos/dentist-appointment/`](demos/dentist-appointment/).
 - Includes a small no-spam community placement note for bug-bounty resource links: [`resources/bug-bounty-community-placement.md`](resources/bug-bounty-community-placement.md).
 - Includes same-day workflow samples for document diffing, PII redaction, and outbound-email scoring: [`resources/fast-ai-workflow-samples.md`](resources/fast-ai-workflow-samples.md).
 - Includes a runnable starter pack for same-day AI/dev workflow tasks: [`resources/fast-workflow-starter-pack.md`](resources/fast-workflow-starter-pack.md).

@@ -99,14 +99,18 @@ const notificationPayload = {
   priority: restockItems.some((item) => item.status === "critical") ? "high" : "normal",
   channels: ["email", "dashboard"],
   message: [
-    `Critical: ${restockItems
-      .filter((item) => item.status === "critical")
-      .map((item) => item.name)
-      .join(", ") || "none"}.`,
-    `Low stock: ${restockItems
-      .filter((item) => item.status === "low_stock")
-      .map((item) => item.name)
-      .join(", ") || "none"}.`,
+    `Critical: ${
+      restockItems
+        .filter((item) => item.status === "critical")
+        .map((item) => item.name)
+        .join(", ") || "none"
+    }.`,
+    `Low stock: ${
+      restockItems
+        .filter((item) => item.status === "low_stock")
+        .map((item) => item.name)
+        .join(", ") || "none"
+    }.`,
   ].join(" "),
 };
 

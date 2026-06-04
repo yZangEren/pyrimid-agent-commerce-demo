@@ -85,7 +85,11 @@ function classifyTicket(input) {
 
 function evaluateAppointment(request) {
   const slots = availability[request.staff_member] ?? [];
-  const isAvailable = slots.some((slot) => request.requested_window.includes(slot.slice(0, 10)) && request.requested_window.includes(slot.slice(11, 13)));
+  const isAvailable = slots.some(
+    (slot) =>
+      request.requested_window.includes(slot.slice(0, 10)) &&
+      request.requested_window.includes(slot.slice(11, 13)),
+  );
   return {
     requested_window: request.requested_window,
     service_type: request.service_type,

@@ -46,7 +46,8 @@ select {
 .topbar,
 .tool-grid,
 .result-layout,
-.receipt-panel {
+.receipt-panel,
+.delivery-panel {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -232,6 +233,36 @@ dd {
   padding: 18px;
 }
 
+.delivery-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+}
+
+.delivery-panel h2 {
+  margin-bottom: 6px;
+}
+
+.delivery-panel a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+  color: white;
+  background: var(--accent);
+  text-decoration: none;
+  font-weight: 760;
+}
+
+.delivery-panel a:hover {
+  background: var(--accent-dark);
+}
+
 .results-header {
   display: flex;
   align-items: baseline;
@@ -380,11 +411,17 @@ pre {
   .input-row,
   .controls,
   .card-actions,
-  .results-header {
+  .results-header,
+  .delivery-panel {
     grid-template-columns: 1fr;
   }
 
-  .results-header {
+  .results-header,
+  .delivery-panel {
     display: grid;
+  }
+
+  .delivery-panel a {
+    width: 100%;
   }
 }
